@@ -1,14 +1,20 @@
 {
   "name": "daymark",
   "productName": "Daymark",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Daymark · 일정과 업무 데스크톱 앱",
   "main": "electron/main.js",
   "author": "진우",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nooooooot/Daymark.git"
+  },
   "scripts": {
     "start": "electron .",
-    "dev": "electron ."
+    "dev": "electron .",
+    "build": "electron-builder --win",
+    "build:publish": "electron-builder --win --publish always"
   },
   "dependencies": {
     "electron-updater": "^6.8.9",
@@ -17,6 +23,47 @@
     "korean-lunar-calendar": "^0.3.6"
   },
   "devDependencies": {
-    "electron": "^33.2.1"
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.daymark.desktop",
+    "productName": "Daymark",
+    "copyright": "Copyright © 진우",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "assets/icon.ico"
+    ],
+    "extraResources": [
+      {
+        "from": "google-oauth.config.json",
+        "to": "google-oauth.config.json"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Daymark-Setup-${version}.exe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Nooooooot",
+      "repo": "Daymark"
+    }
   }
 }

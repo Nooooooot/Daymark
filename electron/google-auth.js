@@ -28,7 +28,15 @@ function getProjectRoot() {
 
 function loadOAuthConfig() {
   const projectRoot = getProjectRoot();
-  const primaryPath = path.join(projectRoot, 'google-oauth.config.json');
+  const configPaths = [path.join(projectRoot, 'google-oauth.config.json')];
+  try {
+    const { app } = require('electron');
+    if (app?.isPackaged && process.resourcesPath) {
+      configPaths.unshift(path.join(process.resourcesPath, 'google-oauth.config.json'));
+    }
+  } catch {
+    /* not in electron yet */
+  }
 
   const normalize = (raw) => {
     if (!raw) return null;
@@ -57,8 +65,11 @@ function loadOAuthConfig() {
     }
   };
 
-  let config = tryRead(primaryPath);
-  if (config?.clientId) return config;
+  let config = null;
+  for (const filePath of configPaths) {
+    config = tryRead(filePath);
+    if (config?.clientId) return config;
+  }
 
   try {
     const files = fs.readdirSync(projectRoot);

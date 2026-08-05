@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Prepare OAuth config
+        shell: pwsh
+        env:
+          GOOGLE_OAUTH_CONFIG: ${{ secrets.GOOGLE_OAUTH_CONFIG }}
+        run: |
+          if (-not $env:GOOGLE_OAUTH_CONFIG) {
+            throw 'GitHub secret GOOGLE_OAUTH_CONFIG is required for release builds.'
+          }
+          Set-Content -Path google-oauth.config.json -Value $env:GOOGLE_OAUTH_CONFIG -Encoding UTF8
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and publish
+        run: npm run build:publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
