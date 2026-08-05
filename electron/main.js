@@ -465,6 +465,15 @@ function registerIpcHandlers() {
 
   ipcMain.handle('app-check-updates', async () => getUpdaterApi().checkForUpdates());
 
+  ipcMain.handle('focus-main-window', () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return false;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    mainWindow.webContents.focus();
+    return true;
+  });
+
   ipcMain.handle('import-data-file', async () => {
     const win = mainWindow || loginWindow;
     const result = await dialog.showOpenDialog(win, {

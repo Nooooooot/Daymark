@@ -65,5 +65,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   checkForUpdates() {
     return ipcRenderer.invoke('app-check-updates');
+  },
+  focusMainWindow() {
+    return ipcRenderer.invoke('focus-main-window');
   }
 });

@@ -442,7 +442,8 @@
         }
 
         .task-input-bar input, 
-        .task-input-bar select {
+        .task-input-bar select,
+        .task-input-bar textarea {
             width: 100%;
             padding: 6px 10px;
             border: 1px solid var(--border-color);
@@ -450,6 +451,22 @@
             outline: none;
             background: var(--bg-main);
             font-size: 0.88rem;
+            font-family: inherit;
+        }
+        .task-input-bar textarea.desc-input {
+            min-height: 34px;
+            max-height: 200px;
+            resize: none;
+            overflow-y: hidden;
+            line-height: 1.4;
+            box-sizing: border-box;
+        }
+        .task-input-bar.grid-layout {
+            align-items: center;
+        }
+
+        .task-input-bar .btn-add {
+            align-self: center;
         }
 
         .date-picker-wrapper {
@@ -972,7 +989,7 @@
         .desc-text {
             font-size: 0.85rem;
             color: var(--text-light);
-            white-space: normal;
+            white-space: pre-wrap;
             word-break: break-word;
             overflow-wrap: anywhere;
             display: block;
@@ -1501,10 +1518,11 @@
             display: grid;
             grid-template-columns: 0.72fr 0.72fr 0.72fr 0.72fr 0.72fr 1fr 70px;
             gap: 10px;
-            align-items: end;
+            align-items: start;
         }
         .anniversary-input-bar input,
-        .anniversary-input-bar select {
+        .anniversary-input-bar select,
+        .anniversary-input-bar textarea {
             width: 100%;
             padding: 6px 10px;
             border: 1px solid var(--border-color);
@@ -1512,6 +1530,15 @@
             outline: none;
             background: var(--bg-main);
             font-size: 0.88rem;
+            font-family: inherit;
+        }
+        .anniversary-input-bar textarea.desc-input {
+            min-height: 34px;
+            max-height: 200px;
+            resize: none;
+            overflow-y: hidden;
+            line-height: 1.4;
+            box-sizing: border-box;
         }
         .ann-field {
             display: flex;
@@ -1865,9 +1892,8 @@
         }
         .cdp-dropdown.is-floating {
             position: fixed;
-            top: 0;
-            left: 0;
             z-index: 3000;
+            visibility: hidden;
         }
         .cdp-header {
             display: flex;
@@ -2239,9 +2265,18 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
         }
         .modal-content h3 { font-size: 1.1rem; margin-bottom: 4px; color: var(--text-main); }
-        .modal-content input, .modal-content select {
+        .modal-content input, .modal-content select, .modal-content textarea {
             padding: 8px 10px; border: 1px solid var(--border-color);
             border-radius: 4px; font-size: 0.9rem; background: var(--bg-main); color: var(--text-main);
+            font-family: inherit;
+        }
+        .modal-content textarea.desc-input {
+            min-height: 72px;
+            max-height: 240px;
+            resize: none;
+            overflow-y: hidden;
+            line-height: 1.45;
+            box-sizing: border-box;
         }
         .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
         .btn-modal-cancel { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; background: var(--bg-sidebar); color: var(--text-main); font-weight: 500; }
@@ -2793,7 +2828,7 @@
                 </div>
             </div>
 
-            <input type="text" id="input-desc" placeholder="세부 내용 메모..." autocomplete="off">
+            <textarea id="input-desc" class="desc-input" rows="1" placeholder="세부 내용 메모..." autocomplete="off"></textarea>
             <button class="btn-add" id="btn-add-task">추가</button>
         </div>
 
@@ -3006,7 +3041,7 @@
                 </div>
                 <div class="ann-field">
                     <span class="ann-field-label">메모</span>
-                    <input type="text" id="ann-input-desc" placeholder="메모 (선택)..." autocomplete="off">
+                    <textarea id="ann-input-desc" class="desc-input" rows="1" placeholder="메모 (선택)..." autocomplete="off"></textarea>
                 </div>
                 <button class="btn-add" id="btn-add-anniversary" type="button">추가</button>
             </div>
@@ -3138,10 +3173,20 @@
                 <input type="hidden" id="modal-recurrence-dates" value="">
                 <div class="multi-dates-summary" id="modal-multi-dates-summary"></div>
             </div>
-            <input type="text" id="modal-desc" placeholder="세부 내용 메모" autocomplete="off">
+            <textarea id="modal-desc" class="desc-input" rows="3" placeholder="세부 내용 메모" autocomplete="off"></textarea>
             <div class="modal-actions">
                 <button class="btn-modal-cancel" onclick="closeTaskModal()">취소</button>
                 <button class="btn-modal-save" id="btn-modal-save" onclick="saveTaskFromModal()">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dm-dialog-overlay" class="modal-overlay" style="z-index:4000;">
+        <div class="modal-content" style="width:min(360px,92vw);">
+            <p id="dm-dialog-message" style="margin:0; font-size:0.95rem; line-height:1.55; color:var(--text-main); white-space:pre-wrap;"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" id="dm-dialog-cancel">취소</button>
+                <button type="button" class="btn-modal-save" id="dm-dialog-ok">확인</button>
             </div>
         </div>
     </div>
@@ -4211,6 +4256,7 @@
                 dropdown.classList.remove('is-floating');
                 dropdown.style.top = '';
                 dropdown.style.left = '';
+                dropdown.style.visibility = '';
                 if (dropdown.parentElement !== root) root.appendChild(dropdown);
                 showDayView();
                 if (openCustomDatePickerId === hiddenInputId) openCustomDatePickerId = null;
@@ -4218,8 +4264,13 @@
 
             function positionFloatingDropdown() {
                 const rect = trigger.getBoundingClientRect();
+                if (!rect.width && !rect.height) {
+                    closeDropdown();
+                    return;
+                }
                 dropdown.classList.add('is-floating');
                 document.body.appendChild(dropdown);
+                dropdown.style.visibility = 'hidden';
                 dropdown.style.display = 'block';
                 renderGrid();
 
@@ -4235,6 +4286,7 @@
                 }
                 dropdown.style.top = top + 'px';
                 dropdown.style.left = left + 'px';
+                dropdown.style.visibility = 'visible';
             }
 
             function openDropdown() {
@@ -4624,6 +4676,7 @@
         let currentTab = 'today';
         let lastRenderedTab = null;
         let dmSuppressContentFade = false;
+        let focusTaskInputAfterRender = false;
         /** 목록 정렬: date(시작일) | title(이름) | category(카테고리) | manual(드래그 순서) */
         let taskListSortKey = 'date';
         let taskListSortDir = 'asc';
@@ -5365,6 +5418,17 @@
             initDesktopIntegration();
             renderApp();
             setupEvents();
+            setupDescTextareaAutoResize();
+            window.addEventListener('focus', () => {
+                requestAnimationFrame(() => {
+                    releaseStuckFocus();
+                    const active = document.activeElement;
+                    if (active && active !== document.body && active !== document.documentElement && document.body.contains(active)) return;
+                    if (isTaskInputTab() || currentTab === 'anniversary') {
+                        focusPrimaryInputForTab();
+                    }
+                });
+            });
             updateHeaderClock();
             setInterval(updateHeaderClock, 10000);
             setInterval(checkPlanDateReset, 60000);
@@ -5437,7 +5501,7 @@
 
         async function logoutFromApp() {
             if (!window.electronAPI?.logout) return;
-            if (!confirm('로그아웃하시겠습니까? Google Drive 동기화가 중단됩니다.')) return;
+            if (!(await dmConfirm('로그아웃하시겠습니까? Google Drive 동기화가 중단됩니다.'))) return;
             await window.electronAPI.logout();
         }
 
@@ -5487,8 +5551,9 @@
         }
 
         const undoStack = [];
+        const redoStack = [];
         const UNDO_MAX = 80;
-        let isUndoing = false;
+        let isHistoryNavigating = false;
 
         function snapshotAppState() {
             return JSON.stringify({
@@ -5500,21 +5565,7 @@
             });
         }
 
-        function pushUndoSnapshot() {
-            if (isUndoing) return;
-            undoStack.push(snapshotAppState());
-            if (undoStack.length > UNDO_MAX) undoStack.shift();
-        }
-
-        function saveWithUndo() {
-            pushUndoSnapshot();
-            saveData();
-        }
-
-        function performUndo() {
-            if (!undoStack.length) return;
-            isUndoing = true;
-            const raw = undoStack.pop();
+        function applyAppStateSnapshot(raw) {
             try {
                 const s = JSON.parse(raw);
                 tasks = s.tasks || [];
@@ -5530,10 +5581,39 @@
                 if (currentTab === 'anniversary') renderAnniversaryView();
                 if (currentTab === 'calendar') renderCalendar();
             } catch (_) { /* ignore corrupt snapshot */ }
-            isUndoing = false;
         }
 
-        function exportAppDataToFile() {
+        function pushUndoSnapshot() {
+            if (isHistoryNavigating) return;
+            undoStack.push(snapshotAppState());
+            redoStack.length = 0;
+            if (undoStack.length > UNDO_MAX) undoStack.shift();
+        }
+
+        function saveWithUndo() {
+            pushUndoSnapshot();
+            saveData();
+        }
+
+        function performUndo() {
+            if (!undoStack.length) return;
+            isHistoryNavigating = true;
+            redoStack.push(snapshotAppState());
+            const raw = undoStack.pop();
+            applyAppStateSnapshot(raw);
+            isHistoryNavigating = false;
+        }
+
+        function performRedo() {
+            if (!redoStack.length) return;
+            isHistoryNavigating = true;
+            undoStack.push(snapshotAppState());
+            const raw = redoStack.pop();
+            applyAppStateSnapshot(raw);
+            isHistoryNavigating = false;
+        }
+
+        async function exportAppDataToFile() {
             const keys = [
                 'notion_app_tasks',
                 'notion_app_anniversaries',
@@ -5551,7 +5631,7 @@
                 if (value !== null) data[key] = value;
             });
             if (Object.keys(data).length === 0) {
-                alert('저장된 데이터가 없습니다.');
+                await dmAlert('저장된 데이터가 없습니다.');
                 return;
             }
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -5560,7 +5640,7 @@
             a.download = 'task-app-export.json';
             a.click();
             URL.revokeObjectURL(a.href);
-            alert('task-app-export.json 파일이 다운로드되었습니다.');
+            await dmAlert('task-app-export.json 파일이 다운로드되었습니다.');
         }
 
         function syncLunarToggleUI() {
@@ -5919,6 +5999,7 @@
             setAnnDdayMode('input', 'until');
             syncAnnInputDdayFormat();
             document.getElementById('ann-input-desc').value = '';
+            resetDescTextareaHeight('ann-input-desc');
             if (focusTitle) document.getElementById('ann-input-title').focus();
         }
 
@@ -6005,20 +6086,18 @@
 
             let finished = false;
 
-            function finish(commit) {
+            async function finish(commit) {
                 if (finished) return;
                 if (commit) {
                     const name = input.value.trim();
                     if (!name) {
-                        alert('분류 이름을 입력해주세요.');
+                        await dmAlert('분류 이름을 입력해주세요.', input);
                         input.value = original;
-                        input.focus();
                         input.select();
                         return;
                     }
                     if (anniversaryCategories.some(c => c.id !== catId && c.label === name)) {
-                        alert('이미 존재하는 분류 이름입니다.');
-                        input.focus();
+                        await dmAlert('이미 존재하는 분류 이름입니다.', input);
                         input.select();
                         return;
                     }
@@ -6056,16 +6135,16 @@
             });
         }
 
-        window.renameAnnCategory = function(id, newLabel) {
+        window.renameAnnCategory = async function(id, newLabel) {
             const cat = anniversaryCategories.find(c => c.id === id);
             if (!cat) return false;
             const name = (newLabel || '').trim();
             if (!name) {
-                alert('분류 이름을 입력해주세요.');
+                await dmAlert('분류 이름을 입력해주세요.');
                 return false;
             }
             if (anniversaryCategories.some(c => c.id !== id && c.label === name)) {
-                alert('이미 존재하는 분류 이름입니다.');
+                await dmAlert('이미 존재하는 분류 이름입니다.');
                 return false;
             }
             if (cat.label === name) return true;
@@ -6216,9 +6295,9 @@
             });
         }
 
-        window.deleteAnnCategory = function(id) {
+        window.deleteAnnCategory = async function(id) {
             if (id === 'birthday' || id === 'other') return;
-            if (!confirm('이 분류를 삭제하시겠습니까? 해당 분류의 기념일은 "기타"로 변경됩니다.')) return;
+            if (!(await dmConfirm('이 분류를 삭제하시겠습니까? 해당 분류의 기념일은 "기타"로 변경됩니다.'))) return;
             anniversaries.forEach(a => { if (a.type === id) a.type = 'other'; });
             anniversaryCategories = anniversaryCategories.filter(c => c.id !== id);
             saveData();
@@ -6227,17 +6306,15 @@
             renderAnniversaryView();
         };
 
-        function addAnnCategory() {
+        async function addAnnCategory() {
             const input = document.getElementById('ann-cat-add-input');
             const name = (input?.value || '').trim();
             if (!name) {
-                alert('분류 이름을 입력해주세요.');
-                input?.focus();
+                await dmAlert('분류 이름을 입력해주세요.', input);
                 return;
             }
             if (anniversaryCategories.some(c => c.label === name)) {
-                alert('이미 존재하는 분류입니다.');
-                input?.focus();
+                await dmAlert('이미 존재하는 분류입니다.', input);
                 return;
             }
             const icon = normalizeAnnCategoryIcon(annCatNewIcon);
@@ -6320,7 +6397,7 @@
                 <div class="col-desc">
                     <span class="desc-text editable-text" contenteditable="true"
                           onblur="updateAnniversaryInline(${ann.id}, 'desc', this.innerText)"
-                          onkeydown="if(event.key==='Enter'){this.blur(); return false;}">${escapeHtml(ann.desc || '')}</span>
+                          onkeydown="handleDescFieldKeydown(event)">${formatDescEditableHtml(ann.desc || '')}</span>
                 </div>
                 <div class="col-action">
                     <button class="btn-delete" onclick="deleteAnniversary(${ann.id})" title="삭제"><span class="material-symbols-outlined">close</span></button>
@@ -6509,7 +6586,7 @@
                 showDday: !!showDday,
                 ddayIncludeDay: ddayIncludeDay !== false,
                 ddayMode: ddayMode === 'since' ? 'since' : 'until',
-                desc: desc || '',
+                desc: normalizeDescInput(desc || ''),
                 isLunar: false,
                 lunarMonth: 0,
                 lunarDay: 0,
@@ -6539,7 +6616,7 @@
                 ann.title = (value || '').trim() || '이름 없음';
                 changed = true;
             } else if (field === 'desc' && ann.desc !== value) {
-                ann.desc = (value || '').trim();
+                ann.desc = normalizeDescInput(value);
                 changed = true;
             } else if (field === 'type' && ann.type !== value) {
                 ann.type = value;
@@ -6578,8 +6655,8 @@
             }
         };
 
-        window.deleteAnniversary = function(id) {
-            if (!confirm('이 기념일을 삭제하시겠습니까?')) return;
+        window.deleteAnniversary = async function(id) {
+            if (!(await dmConfirm('이 기념일을 삭제하시겠습니까?'))) return;
             anniversaries = anniversaries.filter(a => a.id !== id);
             saveData();
             renderAnniversaryView();
@@ -6596,6 +6673,7 @@
         function resetInputBar(focusTitle = false) {
             document.getElementById('input-title').value = '';
             document.getElementById('input-desc').value = '';
+            resetDescTextareaHeight('input-desc');
             document.getElementById('input-category').value = getDefaultInputCategory();
 
             if (currentTab === 'today') {
@@ -6716,7 +6794,219 @@
             });
         }
 
+        function isComposingInput(e) {
+            return !!(e && (e.isComposing || e.keyCode === 229));
+        }
+
+        function releaseStuckFocus() {
+            const active = document.activeElement;
+            if (!active || active === document.body || active === document.documentElement) return;
+            if (!document.body.contains(active)) {
+                try { active.blur(); } catch (_) { /* detached node */ }
+                return;
+            }
+            if (active.closest?.('#task-list-body, #today-plan-body, #today-category-body, #anniversary-list-body, aside .nav-item')) {
+                active.blur();
+            }
+        }
+
+        function restoreInputFocusAfterDialog(preferredEl) {
+            const applyFocus = () => {
+                releaseStuckFocus();
+                if (preferredEl && document.body.contains(preferredEl)) {
+                    preferredEl.focus({ preventScroll: true });
+                    return;
+                }
+                if (isTaskInputTab() || currentTab === 'anniversary') {
+                    focusPrimaryInputForTab();
+                }
+            };
+            requestAnimationFrame(() => {
+                applyFocus();
+                requestAnimationFrame(applyFocus);
+            });
+            setTimeout(applyFocus, 0);
+            setTimeout(applyFocus, 50);
+        }
+
+        let dmDialogCloseTimer = null;
+        let dmDialogTransitionEnd = null;
+
+        function cancelDmDialogClose(el) {
+            if (dmDialogCloseTimer) {
+                clearTimeout(dmDialogCloseTimer);
+                dmDialogCloseTimer = null;
+            }
+            if (dmDialogTransitionEnd && el) {
+                el.removeEventListener('transitionend', dmDialogTransitionEnd);
+                dmDialogTransitionEnd = null;
+            }
+        }
+
+        function dmOpenDialogOverlay(el) {
+            if (!el) return;
+            cancelDmDialogClose(el);
+            el.style.display = 'flex';
+            el.classList.add('dm-open');
+        }
+
+        function dmCloseDialogOverlay(el) {
+            if (!el) return;
+            cancelDmDialogClose(el);
+            el.classList.remove('dm-open');
+            if (prefersReducedMotion()) {
+                el.style.display = 'none';
+                return;
+            }
+            dmDialogTransitionEnd = (e) => {
+                if (e.target !== el || e.propertyName !== 'opacity') return;
+                cancelDmDialogClose(el);
+                el.style.display = 'none';
+            };
+            el.addEventListener('transitionend', dmDialogTransitionEnd);
+            dmDialogCloseTimer = setTimeout(() => {
+                dmDialogCloseTimer = null;
+                if (dmDialogTransitionEnd) {
+                    el.removeEventListener('transitionend', dmDialogTransitionEnd);
+                    dmDialogTransitionEnd = null;
+                }
+                if (el.style.display !== 'none') el.style.display = 'none';
+            }, 450);
+        }
+
+        function showDmDialog({ message, mode = 'alert', preferredEl = null }) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('dm-dialog-overlay');
+                const msgEl = document.getElementById('dm-dialog-message');
+                const okBtn = document.getElementById('dm-dialog-ok');
+                const cancelBtn = document.getElementById('dm-dialog-cancel');
+                if (!overlay || !msgEl || !okBtn || !cancelBtn) {
+                    if (mode === 'confirm') resolve(window.confirm(message));
+                    else { window.alert(message); resolve(true); }
+                    restoreInputFocusAfterDialog(preferredEl);
+                    return;
+                }
+
+                cancelDmDialogClose(overlay);
+
+                msgEl.textContent = message;
+                const isConfirm = mode === 'confirm';
+                cancelBtn.style.display = isConfirm ? '' : 'none';
+
+                let settled = false;
+                let openedAt = 0;
+
+                const settle = (result) => {
+                    if (settled) return;
+                    if (!openedAt || Date.now() - openedAt < 280) return;
+                    settled = true;
+                    okBtn.removeEventListener('click', onOk);
+                    cancelBtn.removeEventListener('click', onCancel);
+                    overlay.removeEventListener('keydown', onKey);
+                    dmCloseDialogOverlay(overlay);
+                    restoreInputFocusAfterDialog(preferredEl);
+                    resolve(result);
+                };
+
+                const onOk = (e) => {
+                    e?.stopPropagation?.();
+                    e?.preventDefault?.();
+                    settle(true);
+                };
+                const onCancel = (e) => {
+                    e?.stopPropagation?.();
+                    e?.preventDefault?.();
+                    settle(false);
+                };
+                const onKey = (e) => {
+                    if (e.key === 'Escape' && isConfirm) {
+                        e.preventDefault();
+                        settle(false);
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        settle(true);
+                    }
+                };
+
+                okBtn.addEventListener('click', onOk);
+                cancelBtn.addEventListener('click', onCancel);
+                overlay.addEventListener('keydown', onKey);
+
+                // 같은 클릭이 모달 확인 버튼까지 관통하는 것을 막기 위해 한 틱 뒤에 열기
+                setTimeout(() => {
+                    if (settled) return;
+                    cancelDmDialogClose(overlay);
+                    openedAt = Date.now();
+                    dmOpenDialogOverlay(overlay);
+                    requestAnimationFrame(() => okBtn.focus({ preventScroll: true }));
+                }, 0);
+            });
+        }
+
+        async function dmAlert(message, preferredEl) {
+            await showDmDialog({ message, mode: 'alert', preferredEl });
+        }
+
+        async function dmConfirm(message) {
+            return showDmDialog({ message, mode: 'confirm' });
+        }
+
+        function isTaskInputTab() {
+            return currentTab === 'today' || currentTab === 'inbox' || currentTab.startsWith('cat-');
+        }
+
+        function focusPrimaryInputForTab() {
+            if (currentTab === 'anniversary') {
+                document.getElementById('ann-input-title')?.focus({ preventScroll: true });
+                return;
+            }
+            const inputArea = document.getElementById('task-input-area');
+            if (!inputArea || inputArea.style.display === 'none') return;
+            document.getElementById('input-title')?.focus({ preventScroll: true });
+        }
+
+        function finalizeRenderApp(tabChanged) {
+            dmAnimatePageView(tabChanged);
+            if (!focusTaskInputAfterRender) return;
+            focusTaskInputAfterRender = false;
+            requestAnimationFrame(() => {
+                releaseStuckFocus();
+                requestAnimationFrame(() => {
+                    focusPrimaryInputForTab();
+                });
+            });
+        }
+
+        function closeAllFloatingUI() {
+            Object.values(customDatePickers).forEach(p => {
+                if (p?.closeDropdown) p.closeDropdown();
+            });
+            openCustomDatePickerId = null;
+
+            document.querySelectorAll('.cdp-dropdown.is-floating').forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('is-floating');
+                el.style.top = '';
+                el.style.left = '';
+                el.style.visibility = '';
+            });
+
+            document.querySelectorAll('.ann-row-date-popover').forEach(el => {
+                dmSetFloating(el, false);
+            });
+
+            dmSetFloating(document.getElementById('date-popover'), false);
+            dmSetFloating(document.getElementById('ann-date-popover'), false);
+            dmSetFloating(document.getElementById('cat-popover'), false);
+            dmSetFloating(document.getElementById('inline-date-popover'), false);
+            dmSetFloating(document.getElementById('today-menu-popover'), false);
+            closeCalYmPicker();
+        }
+
         function renderApp() {
+            releaseStuckFocus();
+            closeAllFloatingUI();
+
             const tabChanged = lastRenderedTab !== currentTab;
             lastRenderedTab = currentTab;
             if (tabChanged) dmSuppressContentFade = true;
@@ -6757,7 +7047,7 @@
                 document.getElementById('today-search-panel').classList.toggle('active', todaySearchActive);
                 renderTodayView();
                 syncNavActive();
-                dmAnimatePageView(tabChanged);
+                finalizeRenderApp(tabChanged);
                 return;
             }
 
@@ -6785,7 +7075,7 @@
                 renderAnnCategories();
                 renderAnniversaryView();
                 syncNavActive();
-                dmAnimatePageView(tabChanged);
+                finalizeRenderApp(tabChanged);
                 return;
             }
             else if (currentTab === 'archive') {
@@ -6806,7 +7096,7 @@
                 calView.style.display = 'flex';
                 renderCalendar();
                 syncNavActive();
-                dmAnimatePageView(tabChanged);
+                finalizeRenderApp(tabChanged);
                 return;
             } 
             else if (currentTab.startsWith('cat-')) {
@@ -6842,7 +7132,60 @@
             });
             updateTaskListSortHeaderUI();
             syncNavActive();
-            dmAnimatePageView(tabChanged);
+            finalizeRenderApp(tabChanged);
+        }
+
+        window.handleDescFieldKeydown = function(e) {
+            if (isComposingInput(e)) return;
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.currentTarget.blur();
+            }
+        };
+
+        function isDescMultilineEnter(e) {
+            if (e.key !== 'Enter' || !e.shiftKey) return false;
+            const el = e.target;
+            return el && (
+                el.id === 'input-desc' ||
+                el.id === 'modal-desc' ||
+                el.id === 'ann-input-desc' ||
+                (el.matches && el.matches('.desc-text.editable-text[contenteditable="true"]'))
+            );
+        }
+
+        function autoResizeDescTextarea(el) {
+            if (!el || el.dataset.autoResizing === '1') return;
+            el.dataset.autoResizing = '1';
+            el.style.height = 'auto';
+            const maxPx = parseFloat(getComputedStyle(el).maxHeight);
+            const max = Number.isFinite(maxPx) && maxPx > 0 ? maxPx : 200;
+            const scroll = el.scrollHeight;
+            if (scroll <= max) {
+                el.style.height = `${scroll}px`;
+                el.style.overflowY = 'hidden';
+            } else {
+                el.style.height = `${max}px`;
+                el.style.overflowY = 'auto';
+            }
+            delete el.dataset.autoResizing;
+        }
+
+        function setupDescTextareaAutoResize() {
+            document.querySelectorAll('textarea.desc-input').forEach(el => {
+                if (el.dataset.autoResizeReady) return;
+                el.dataset.autoResizeReady = '1';
+                el.addEventListener('input', () => autoResizeDescTextarea(el));
+                autoResizeDescTextarea(el);
+            });
+        }
+
+        function resetDescTextareaHeight(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.style.height = '';
+            el.style.overflowY = '';
+            autoResizeDescTextarea(el);
         }
 
         window.updateTaskInline = function(id, field, value) {
@@ -6853,7 +7196,7 @@
                     task.title = value.trim() || '제목 없음';
                     changed = true;
                 } else if (field === 'desc' && task.desc !== value) {
-                    task.desc = value.trim();
+                    task.desc = normalizeDescInput(value);
                     changed = true;
                 } else if (field === 'category' && task.category !== value) {
                     if (value === TODAY_PLAN_ID || value === TODAY_PLAN_LABEL) {
@@ -6926,8 +7269,8 @@
                 <div class="col-desc">
                     <span class="desc-text editable-text" contenteditable="true" 
                           onblur="updateTaskInline(${task.id}, 'desc', this.innerText)"
-                          onkeydown="if(event.key==='Enter'){this.blur(); return false;}"
-                          style="width: 100%; min-width: 50px;">${escapeHtml(task.desc || '')}</span>
+                          onkeydown="handleDescFieldKeydown(event)"
+                          style="width: 100%; min-width: 50px;">${formatDescEditableHtml(task.desc || '')}</span>
                 </div>
                 <div class="col-action">
                     <button class="btn-delete" onclick="deleteTask(${task.id})" title="삭제"><span class="material-symbols-outlined">close</span></button>
@@ -7189,7 +7532,7 @@
             listEl.innerHTML = dayTasks.map(t => `
                 <div style="padding:8px;border-bottom:1px solid var(--border-color);${t.completed ? 'opacity:0.55;text-decoration:line-through;' : ''}">
                     <div style="font-weight:500;">${escapeHtml(t.title)}</div>
-                    ${t.desc ? `<div style="font-size:0.82rem;color:var(--text-light);margin-top:2px;">${escapeHtml(t.desc)}</div>` : ''}
+                    ${t.desc ? `<div style="font-size:0.82rem;color:var(--text-light);margin-top:2px;white-space:pre-wrap;">${formatDescPlainHtml(t.desc)}</div>` : ''}
                 </div>
             `).join('');
         }
@@ -7404,6 +7747,21 @@
         function escapeHtml(str) {
             if(!str) return '';
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        function normalizeDescInput(value) {
+            if (value == null) return '';
+            return String(value).replace(/\r\n/g, '\n').trim();
+        }
+
+        function formatDescEditableHtml(str) {
+            if (!str) return '';
+            return escapeHtml(str).replace(/\n/g, '<br>');
+        }
+
+        function formatDescPlainHtml(str) {
+            if (!str) return '';
+            return escapeHtml(str).replace(/\n/g, '<br>');
         }
 
         function toLocalDateStr(date) {
@@ -7884,23 +8242,28 @@
             setTimeout(() => document.getElementById('cat-edit-name').focus(), 0);
         }
 
-        function saveCategoryEdit() {
+        async function saveCategoryEdit() {
             const newName = document.getElementById('cat-edit-name').value.trim();
             const selectedCircle = document.querySelector('.color-circle.selected');
             const newColor = selectedCircle ? selectedCircle.dataset.color : PALETTE_COLORS[0].color;
 
-            if (!newName) return alert('카테고리 이름을 입력해주세요.');
+            if (!newName) {
+                await dmAlert('카테고리 이름을 입력해주세요.', document.getElementById('cat-edit-name'));
+                return;
+            }
 
             if (isCreatingCategory) {
                 if (categories.some(c => c.name === newName)) {
-                    return alert('이미 존재하는 카테고리입니다.');
+                    await dmAlert('이미 존재하는 카테고리입니다.', document.getElementById('cat-edit-name'));
+                    return;
                 }
             } else {
                 if (!editingCategoryName) return;
                 const cat = categories.find(c => c.name === editingCategoryName);
                 if (!cat) return;
                 if (editingCategoryName !== newName && categories.some(c => c.name === newName)) {
-                    return alert('이미 존재하는 카테고리입니다.');
+                    await dmAlert('이미 존재하는 카테고리입니다.', document.getElementById('cat-edit-name'));
+                    return;
                 }
             }
 
@@ -7938,9 +8301,9 @@
             renderApp();
         }
 
-        function deleteCategoryEdit() {
+        async function deleteCategoryEdit() {
             if (!editingCategoryName) return;
-            if (confirm(`'${editingCategoryName}' 카테고리를 삭제하시겠습니까?`)) {
+            if (await dmConfirm(`'${editingCategoryName}' 카테고리를 삭제하시겠습니까?`)) {
                 saveWithUndo();
                 categories = categories.filter(c => c.name !== editingCategoryName);
                 tasks.forEach(t => { if (t.category === editingCategoryName) t.category = 'inbox'; });
@@ -7956,6 +8319,9 @@
                 renderApp();
             }
         }
+
+        window.saveCategoryEdit = saveCategoryEdit;
+        window.deleteCategoryEdit = deleteCategoryEdit;
 
         function addTask(title, category, dateStart, dateEnd, recurrence, desc, planDate, recurrenceDates) {
             const isPlan = category === TODAY_PLAN_ID || category === TODAY_PLAN_LABEL;
@@ -7973,7 +8339,7 @@
                 dateEnd: resolvedEnd,
                 recurrence: recurrence || 'none',
                 recurrenceDates: recurrence === 'dates' ? dates : undefined,
-                desc: desc || '',
+                desc: normalizeDescInput(desc || ''),
                 completed: false,
                 completedAt: null,
                 hubPriority: false,
@@ -8081,6 +8447,7 @@
             syncLunarToggleUI();
             dmOpenOverlay(document.getElementById('cal-task-modal'));
             rangeDatePickers['modal-date-range-mount']?.renderGrid?.();
+            requestAnimationFrame(() => autoResizeDescTextarea(document.getElementById('modal-desc')));
             document.getElementById('modal-title').focus();
         };
 
@@ -8089,16 +8456,19 @@
             dmCloseOverlay(document.getElementById('cal-task-modal'));
         };
 
-        window.saveTaskFromModal = function() {
+        window.saveTaskFromModal = async function() {
             const title = document.getElementById('modal-title').value.trim();
-            if(!title) return alert('업무 이름을 입력해주세요.');
+            if (!title) {
+                await dmAlert('업무 이름을 입력해주세요.', document.getElementById('modal-title'));
+                return;
+            }
 
             const category = document.getElementById('modal-category').value;
             const dateStart = document.getElementById('modal-date-start').value;
             const dateEnd = document.getElementById('modal-date-end').value;
             const recurrence = document.getElementById('modal-recurrence').value;
             const recurrenceDates = parseRecurrenceDatesHidden('modal-recurrence-dates');
-            const desc = document.getElementById('modal-desc').value.trim();
+            const desc = normalizeDescInput(document.getElementById('modal-desc').value);
 
             if (editingModalTaskId) {
                 const task = tasks.find(t => t.id === editingModalTaskId);
@@ -8153,25 +8523,31 @@
             }
         };
 
-        window.deleteTask = function(id) {
-            if (confirm('이 항목을 삭제하시겠습니까?')) {
-                saveWithUndo();
-                tasks = tasks.filter(t => t.id !== id);
-                saveData();
-                renderApp();
-            }
+        window.deleteTask = async function(id) {
+            if (!(await dmConfirm('이 항목을 삭제하시겠습니까?'))) return;
+            releaseStuckFocus();
+            saveWithUndo();
+            tasks = tasks.filter(t => t.id !== id);
+            saveData();
+            focusTaskInputAfterRender = isTaskInputTab();
+            renderApp();
         };
 
         function setupEvents() {
+            document.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.btn-delete')) e.preventDefault();
+            }, true);
+
             document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-                    const el = e.target;
-                    const tag = el && el.tagName;
-                    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-                    if (el && el.isContentEditable) return;
-                    e.preventDefault();
-                    performUndo();
-                }
+                if (isComposingInput(e)) return;
+                if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z') return;
+                const el = e.target;
+                const tag = el && el.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                if (el && el.isContentEditable) return;
+                e.preventDefault();
+                if (e.shiftKey) performRedo();
+                else performUndo();
             });
 
             document.getElementById('theme-selector').addEventListener('change', (e) => setTheme(e.target.value));
@@ -8205,6 +8581,7 @@
                 resetTabFiltersForEnter(navItem.dataset.tab);
                 currentTab = navItem.dataset.tab;
                 resetTaskListSortToDate();
+                focusTaskInputAfterRender = true;
                 resetInputBar();
                 renderApp();
             });
@@ -8261,14 +8638,14 @@
                     window.electronAPI.openDataFolder();
                 });
                 document.getElementById('desktop-import-data').addEventListener('click', async () => {
-                    if (!confirm('브라우저에서 내보낸 JSON 파일로 현재 데이터를 덮어씁니다. 계속할까요?')) return;
+                    if (!(await dmConfirm('브라우저에서 내보낸 JSON 파일로 현재 데이터를 덮어씁니다. 계속할까요?'))) return;
                     const result = await window.electronAPI.importDataFile();
                     if (result?.ok) {
-                        alert(`데이터 ${result.imported}개 항목을 가져왔습니다.`);
+                        await dmAlert(`데이터 ${result.imported}개 항목을 가져왔습니다.`);
                         closeDesktopSettings();
                         location.reload();
                     } else if (!result?.cancelled) {
-                        alert(result?.error || '가져오기에 실패했습니다.');
+                        await dmAlert(result?.error || '가져오기에 실패했습니다.');
                     }
                 });
                 document.getElementById('desktop-test-notify').addEventListener('click', () => {
@@ -8281,7 +8658,7 @@
                     try {
                         const result = await window.electronAPI.checkForUpdates();
                         if (result?.status !== 'available') {
-                            alert(result?.message || '업데이트 확인에 실패했습니다.');
+                            await dmAlert(result?.message || '업데이트 확인에 실패했습니다.');
                         }
                     } finally {
                         btn.disabled = false;
@@ -8298,7 +8675,7 @@
                     }
                 });
                 document.getElementById('desktop-logout').addEventListener('click', async () => {
-                    if (!confirm('로그아웃하시겠습니까? Google Drive 동기화가 중단됩니다.')) return;
+                    if (!(await dmConfirm('로그아웃하시겠습니까? Google Drive 동기화가 중단됩니다.'))) return;
                     closeDesktopSettings();
                     await window.electronAPI.logout();
                 });
@@ -8389,6 +8766,7 @@
             }
 
             document.addEventListener('keydown', (e) => {
+                if (isComposingInput(e)) return;
                 if (!isInputDatePopoverOpen()) return;
                 const inputArea = document.getElementById('task-input-area');
                 if (!inputArea || inputArea.style.display === 'none') return;
@@ -8521,15 +8899,14 @@
                 }
             });
 
-            document.getElementById('btn-add-task').addEventListener('click', () => {
+            document.getElementById('btn-add-task').addEventListener('click', async () => {
                 const titleInput = document.getElementById('input-title');
                 const title = titleInput.value.trim();
                 let category = document.getElementById('input-category').value;
-                const desc = document.getElementById('input-desc').value.trim();
+                const desc = normalizeDescInput(document.getElementById('input-desc').value);
 
                 if (!title) {
-                    alert('업무 이름을 입력해주세요.');
-                    titleInput.focus();
+                    await dmAlert('업무 이름을 입력해주세요.', titleInput);
                     return;
                 }
 
@@ -8579,28 +8956,40 @@
                 resetInputBar(true);
             });
 
-            // 피드백: 입력바 내 어디서든 엔터키를 누르면 저장되도록 수정
+            // 입력바: 제목에서 Enter → 추가, 세부 내용에서 Enter → 제목 없으면 제목으로, 있으면 추가
             document.getElementById('task-input-area').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    if (isInputDatePopoverOpen()) return;
+                if (isComposingInput(e)) return;
+                if (e.key !== 'Enter' || e.shiftKey) return;
+                if (isInputDatePopoverOpen()) return;
+
+                const target = e.target;
+                if (target?.id === 'input-desc') {
                     e.preventDefault();
-                    document.getElementById('btn-add-task').click();
+                    e.stopPropagation();
+                    const title = document.getElementById('input-title')?.value.trim();
+                    if (!title) {
+                        document.getElementById('input-title')?.focus();
+                    } else {
+                        document.getElementById('btn-add-task').click();
+                    }
+                    return;
                 }
+
+                e.preventDefault();
+                document.getElementById('btn-add-task').click();
             });
 
-            document.getElementById('btn-add-anniversary').addEventListener('click', () => {
+            document.getElementById('btn-add-anniversary').addEventListener('click', async () => {
                 const titleInput = document.getElementById('ann-input-title');
                 const title = titleInput.value.trim();
                 const dateStart = annTempDate.start;
 
                 if (!title) {
-                    alert('기념일 이름을 입력해주세요.');
-                    titleInput.focus();
+                    await dmAlert('기념일 이름을 입력해주세요.', titleInput);
                     return;
                 }
                 if (!dateStart) {
-                    alert('날짜를 선택해주세요.');
-                    document.getElementById('ann-btn-date-trigger').focus();
+                    await dmAlert('날짜를 선택해주세요.', document.getElementById('ann-btn-date-trigger'));
                     return;
                 }
 
@@ -8619,25 +9008,52 @@
                     document.getElementById('ann-input-dday').checked,
                     document.getElementById('ann-input-dday-include').checked,
                     getAnnInputDdayMode(),
-                    document.getElementById('ann-input-desc').value.trim(),
+                    normalizeDescInput(document.getElementById('ann-input-desc').value),
                     lunarMeta
                 );
                 resetAnniversaryInput(true);
             });
 
             document.getElementById('anniversary-input-area').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
+                if (isComposingInput(e)) return;
+                if (e.key !== 'Enter' || e.shiftKey) return;
+
+                const target = e.target;
+                if (target?.id === 'ann-input-desc') {
                     e.preventDefault();
-                    document.getElementById('btn-add-anniversary').click();
+                    e.stopPropagation();
+                    const title = document.getElementById('ann-input-title')?.value.trim();
+                    if (!title) {
+                        document.getElementById('ann-input-title')?.focus();
+                    } else {
+                        document.getElementById('btn-add-anniversary').click();
+                    }
+                    return;
                 }
+
+                e.preventDefault();
+                document.getElementById('btn-add-anniversary').click();
             });
             
             // 모달 내 엔터키 지원
             document.getElementById('cal-task-modal').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
+                if (isComposingInput(e)) return;
+                if (e.key !== 'Enter' || e.shiftKey) return;
+
+                if (e.target?.id === 'modal-desc') {
                     e.preventDefault();
-                    saveTaskFromModal();
+                    e.stopPropagation();
+                    const title = document.getElementById('modal-title')?.value.trim();
+                    if (!title) {
+                        document.getElementById('modal-title')?.focus();
+                    } else {
+                        saveTaskFromModal();
+                    }
+                    return;
                 }
+
+                e.preventDefault();
+                saveTaskFromModal();
             });
 
             document.getElementById('search-input').addEventListener('input', (e) => {
