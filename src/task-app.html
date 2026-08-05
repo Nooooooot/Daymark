@@ -313,6 +313,40 @@
         }
         .nav-item:hover .btn-cat-more { opacity: 1; }
         .btn-cat-more:hover { background: rgba(0,0,0,0.08); }
+        .nav-item-right {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex-shrink: 0;
+        }
+        .hub-cat-check {
+            border: none;
+            background: transparent;
+            padding: 2px;
+            margin: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            color: var(--text-light);
+            opacity: 0.28;
+            transition: opacity 0.15s ease, color 0.15s ease;
+            flex-shrink: 0;
+        }
+        .hub-cat-check .material-symbols-outlined {
+            font-size: 17px;
+        }
+        .hub-cat-check:hover {
+            opacity: 0.5;
+        }
+        .nav-item.hub-included .hub-cat-check {
+            opacity: 1;
+            color: var(--primary);
+        }
+        .nav-item.hub-included .hub-cat-check:hover {
+            opacity: 0.85;
+        }
 
         #add-category-btn {
             background: transparent;
@@ -452,7 +486,7 @@
             padding: 14px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.12);
             z-index: 100;
-            width: 280px;
+            width: 300px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -738,15 +772,6 @@
         }
         .today-week-day.is-past .today-week-dot { opacity: 0.55; }
 
-        #today-search-panel {
-            display: none;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: var(--bg-sidebar);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
-        #today-search-panel.active { display: block; }
         .today-search-header {
             display: flex;
             align-items: center;
@@ -853,7 +878,7 @@
             transition: background 0.1s;
         }
         .table-row:hover { background-color: var(--hover-bg); }
-        .table-row.completed .task-title-text { text-decoration: line-through; color: var(--text-light); }
+        .table-row.completed .task-title-text .editable-text { text-decoration: line-through; color: var(--text-light); }
         .task-checkbox { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); margin: auto; display: block; }
 
         .col-check { text-align: center; align-self: start; padding-top: 2px; }
@@ -903,6 +928,7 @@
             gap: 6px;
             min-width: 0;
             line-height: 1.4;
+            width: 100%;
         }
         .task-title-text .material-symbols-outlined {
             flex-shrink: 0;
@@ -918,7 +944,28 @@
             flex: 1;
             min-width: 0;
             padding: 0 4px;
-            line-height: 1.4;
+        }
+        .hub-priority-bang {
+            border: none;
+            background: transparent;
+            padding: 0 2px;
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-light);
+            opacity: 0.28;
+            transition: opacity 0.15s ease, color 0.15s ease;
+            flex-shrink: 0;
+            font-family: inherit;
+        }
+        .hub-priority-bang:hover {
+            opacity: 0.5;
+        }
+        .hub-priority-bang.is-active {
+            opacity: 1;
+            color: var(--primary);
         }
         
         .date-text { font-size: 0.8rem; color: var(--text-light); word-break: break-word; }
@@ -1141,6 +1188,24 @@
             position: relative;
             overflow: hidden;
         }
+        .cal-cell-items {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+        }
+        .cal-cell-items::-webkit-scrollbar {
+            width: 4px;
+        }
+        .cal-cell-items::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
         .cal-cell:hover { border-color: var(--primary); }
         .cal-cell.is-holiday .cal-date-num, .cal-cell.is-sunday .cal-date-num { color: #e06c75; }
         /* 이전/다음 달 날짜 (희미하게) */
@@ -1224,13 +1289,54 @@
 
         .cal-item {
             font-size: 0.72rem;
-            padding: 2px 6px;
+            padding: 2px 4px 2px 6px;
             border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 2px;
+            white-space: normal;
+            word-break: break-word;
+            overflow: visible;
+            margin-top: 0;
             font-weight: 500;
+            flex-shrink: 0;
+            line-height: 1.35;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 4px;
+        }
+        .cal-item-title {
+            flex: 1;
+            min-width: 0;
+        }
+        .cal-item-completed .cal-item-title {
+            text-decoration: line-through;
+        }
+        .cal-item-check {
+            border: none;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            color: inherit;
+            opacity: 0.48;
+            transition: opacity 0.15s ease;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .cal-item-check .material-symbols-outlined {
+            font-size: 14px;
+        }
+        .cal-item:hover .cal-item-check {
+            opacity: 0.72;
+        }
+        .cal-item-completed .cal-item-check {
+            opacity: 0.95;
+        }
+        .cal-item-completed:hover .cal-item-check {
+            opacity: 0.88;
         }
         .cal-item-anniversary { font-weight: 600; }
 
@@ -1424,6 +1530,27 @@
             width: 100%;
             box-sizing: border-box;
         }
+        #ann-date-popover {
+            width: 300px;
+            min-width: 280px;
+        }
+        #ann-date-popover .range-date-picker {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .ann-row-date-trigger {
+            width: 100%;
+            justify-content: flex-start;
+            font-size: 0.78rem;
+            padding: 4px 8px;
+            min-height: 30px;
+        }
+        .ann-row-date-popover {
+            position: fixed;
+            z-index: 1200;
+            width: 300px;
+            min-width: 280px;
+        }
         .anniversary-input-bar .btn-add {
             align-self: end;
             height: 34px;
@@ -1538,13 +1665,15 @@
             margin: 4px 0 0;
             padding: 0 2px;
             overflow-x: auto;
-            scrollbar-width: thin;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             border-bottom: 1px solid var(--border-color);
         }
-        .ann-list-tabs::-webkit-scrollbar { height: 4px; }
-        .ann-list-tabs::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+        .ann-list-tabs::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
         }
         .ann-list-tab {
             display: inline-flex;
@@ -1817,27 +1946,193 @@
         .cdp-weekdays, .cdp-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
+            gap: 4px;
+            justify-items: center;
         }
         .cdp-weekday {
             text-align: center; font-size: 0.68rem; font-weight: 600;
-            color: var(--text-light); padding: 2px 0;
+            color: var(--text-light); padding: 2px 0; width: 34px;
         }
         .cdp-weekday:first-child { color: #e06c75; }
         .cdp-day {
             border: none; background: transparent; cursor: pointer;
-            border-radius: 4px; padding: 3px 0; min-height: 34px;
+            border-radius: 50%;
+            width: 34px; height: 34px; min-height: 34px;
+            padding: 0;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 0.78rem; color: var(--text-main);
+            font-size: 0.74rem; color: var(--text-main);
+            line-height: 1.1;
         }
-        .cdp-day:hover { background: var(--hover-bg); }
-        .cdp-day.is-other { opacity: 0.35; }
-        .cdp-day.is-today { box-shadow: inset 0 0 0 1px var(--primary); }
-        .cdp-day.is-selected { background: var(--primary); color: #fff; }
+        .cdp-day:hover:not(:disabled) { background: var(--hover-bg); }
+        .cdp-day.is-other { opacity: 0.35; cursor: default; }
+        .cdp-day.is-today { box-shadow: inset 0 0 0 1.5px var(--primary); }
+        .cdp-day.is-selected { background: var(--primary); color: #fff; border-radius: 50%; }
         .cdp-day.is-selected .cdp-lunar { color: rgba(255,255,255,0.85); }
+        .cdp-day.is-multi-selected { background: var(--primary); color: #fff; border-radius: 50%; }
+        .cdp-day.is-multi-selected .cdp-lunar { color: rgba(255,255,255,0.85); }
+        /* 범위 달력: 시작~종료 연속 바 */
+        .range-date-picker .cdp-days {
+            gap: 0;
+            justify-items: stretch;
+        }
+        .range-date-picker .cdp-day {
+            width: auto;
+            border-radius: 0;
+            position: relative;
+            background: transparent;
+            overflow: visible;
+        }
+        .range-date-picker .cdp-day > span,
+        .range-date-picker .cdp-day > .cdp-lunar {
+            position: relative;
+            z-index: 2;
+        }
+        .range-date-picker .cdp-day.is-in-range::before,
+        .range-date-picker .cdp-day.is-range-start::before,
+        .range-date-picker .cdp-day.is-range-end::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 30px;
+            background: var(--badge-bg);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .range-date-picker .cdp-day.is-in-range::before {
+            left: 0;
+            right: 0;
+        }
+        .range-date-picker .cdp-day.is-range-start:not(.is-range-end)::before {
+            left: 50%;
+            right: 0;
+        }
+        .range-date-picker .cdp-day.is-range-end:not(.is-range-start)::before {
+            left: 0;
+            right: 50%;
+        }
+        .range-date-picker .cdp-day.is-range-row-start::before {
+            border-top-left-radius: 15px;
+            border-bottom-left-radius: 15px;
+        }
+        .range-date-picker .cdp-day.is-range-row-end::before {
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+        .range-date-picker .cdp-day.is-range-start::after,
+        .range-date-picker .cdp-day.is-range-end::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .range-date-picker .cdp-day.is-range-start.is-range-end::before {
+            left: 50%;
+            width: 30px;
+            margin-left: -15px;
+            right: auto;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+        .range-date-picker .cdp-day.is-range-start.is-range-end::after {
+            display: none;
+        }
+        .range-date-picker .cdp-day.is-range-start,
+        .range-date-picker .cdp-day.is-range-end,
+        .range-date-picker .cdp-day.is-range-start.is-range-end {
+            color: #fff;
+            font-weight: 700;
+        }
+        .range-date-picker .cdp-day.is-range-start .cdp-lunar,
+        .range-date-picker .cdp-day.is-range-end .cdp-lunar,
+        .range-date-picker .cdp-day.is-range-start.is-range-end .cdp-lunar {
+            color: rgba(255, 255, 255, 0.92);
+        }
+        .range-date-picker .cdp-day.is-in-range:not(.is-range-start):not(.is-range-end) {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .range-date-picker .cdp-day.is-in-range:not(.is-range-start):not(.is-range-end) .cdp-lunar {
+            color: var(--primary);
+            opacity: 0.8;
+        }
+        .range-date-picker .cdp-day.is-sunday.is-in-range:not(.is-range-start):not(.is-range-end) {
+            color: #c45c65;
+        }
+        .range-date-picker .cdp-day.is-today {
+            box-shadow: none;
+        }
+        .range-date-picker .cdp-day.is-today:not(.is-range-start):not(.is-range-end)::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 4px;
+            box-shadow: inset 0 0 0 2px var(--primary);
+            z-index: 3;
+            pointer-events: none;
+            background: transparent;
+        }
+        .range-date-picker .cdp-day.is-range-start.is-today::after,
+        .range-date-picker .cdp-day.is-range-end.is-today::after {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18), inset 0 0 0 2px rgba(255, 255, 255, 0.92);
+        }
+        .range-date-picker,
+        .multi-date-picker {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            background: var(--bg-sidebar);
+        }
+        .range-date-hint,
+        .multi-date-hint {
+            margin-top: 6px;
+            font-size: 0.68rem;
+            color: var(--text-light);
+            text-align: center;
+            line-height: 1.35;
+        }
+        .multi-dates-summary {
+            font-size: 0.72rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            min-height: 1.2em;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            word-break: keep-all;
+        }
+        .popover-row.recurrence-dates-bottom {
+            margin-top: 4px;
+        }
+        .btn-multi-date-pick {
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: var(--text-main);
+            width: 100%;
+            text-align: left;
+        }
+        .btn-multi-date-pick:hover { border-color: var(--primary); color: var(--primary); }
+        .cal-item[data-task-id] { cursor: pointer; }
+        .cal-item[data-task-id]:hover { filter: brightness(0.96); }
         .cdp-day.is-sunday { color: #e06c75; }
         .cdp-day.is-selected.is-sunday { color: #fff; }
-        .cdp-lunar { font-size: 0.58rem; color: var(--text-light); line-height: 1.1; margin-top: 1px; }
+        .cdp-lunar { font-size: 0.52rem; color: var(--text-light); line-height: 1; margin-top: 0; }
         .cdp-selected-info {
             margin-top: 8px; font-size: 0.72rem; color: var(--text-light);
             min-height: 1.2em; text-align: center;
@@ -1976,6 +2271,66 @@
             color: inherit;
         }
 
+        .aside-account-btn {
+            margin-top: auto;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-main);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: left;
+            transition: background var(--dm-duration-fast) ease, border-color var(--dm-duration-fast) ease;
+        }
+        .aside-account-btn:hover:not(:disabled) {
+            background: var(--hover-bg);
+            border-color: var(--primary);
+        }
+        .aside-account-btn:disabled {
+            opacity: 0.55;
+            cursor: default;
+        }
+        .aside-account-avatar {
+            flex-shrink: 0;
+            font-size: 28px;
+            color: var(--primary);
+        }
+        .aside-account-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .aside-account-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-light);
+            letter-spacing: 0.02em;
+        }
+        .aside-account-email {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .aside-account-logout {
+            flex-shrink: 0;
+            font-size: 18px;
+            color: var(--text-light);
+            transition: color var(--dm-duration-fast) ease;
+        }
+        .aside-account-btn:hover:not(:disabled) .aside-account-logout {
+            color: var(--primary);
+        }
+
         .list-section-divider {
             display: flex;
             align-items: center;
@@ -1991,6 +2346,15 @@
             flex: 1;
             height: 1px;
             background: var(--border-color);
+        }
+
+        .hub-list-separator {
+            height: 1px;
+            background: var(--border-color);
+            margin: 18px 0 0;
+        }
+        .hub-list-separator + .table-row {
+            padding-top: 4px;
         }
         .archive-toolbar {
             display: none;
@@ -2030,6 +2394,259 @@
             font-weight: 500;
             color: var(--text-light);
         }
+        .list-toolbar {
+            margin-bottom: 12px;
+        }
+        .list-toolbar-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-list-toolbar {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: var(--text-light);
+            font-family: inherit;
+        }
+        .btn-list-toolbar:hover,
+        .btn-list-toolbar.is-active {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-list-toolbar.is-active {
+            background: var(--badge-bg);
+        }
+        .btn-list-toolbar .material-symbols-outlined { font-size: 15px; }
+        .list-toolbar-badge {
+            font-size: 0.68rem;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            font-weight: 600;
+        }
+        .list-filter-panel {
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .list-filter-panel.list-filter-panel-static {
+            display: flex;
+            margin-top: 0;
+        }
+        .list-filter-panel-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .list-filter-count {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        #default-task-table.hub-mode .table-header.grid-layout,
+        #default-task-table.hub-mode .table-row.grid-layout,
+        #default-task-table.no-drag-col .table-header.grid-layout,
+        #default-task-table.no-drag-col .table-row.grid-layout {
+            grid-template-columns: 36px 0.9fr 0.9fr 0.9fr 4fr 70px;
+        }
+        #default-task-table.hub-mode .col-drag,
+        #default-task-table.no-drag-col .col-drag {
+            display: none;
+        }
+
+        /* ================= Motion & transitions ================= */
+        :root {
+            --dm-ease: cubic-bezier(0.22, 1, 0.36, 1);
+            --dm-ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+            --dm-duration-fast: 0.28s;
+            --dm-duration: 0.38s;
+            --dm-duration-slow: 0.44s;
+        }
+
+        @keyframes dm-snap-fade {
+            from { opacity: 0.38; }
+            to { opacity: 1; }
+        }
+        @keyframes dm-fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes dm-scale-in {
+            from { opacity: 0; transform: scale(0.97) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .dm-snap-fade {
+            animation: dm-snap-fade var(--dm-duration-fast) var(--dm-ease-out) both;
+        }
+        .dm-view-enter {
+            animation: dm-snap-fade var(--dm-duration) var(--dm-ease-out) both;
+        }
+
+        .table-row {
+            transition: background-color var(--dm-duration-fast) ease, opacity var(--dm-duration) ease;
+        }
+        .table-row.completed .task-title-text .editable-text {
+            transition: color var(--dm-duration) ease, text-decoration-color var(--dm-duration) ease;
+        }
+        .hub-priority-bang {
+            transition: opacity 0.15s ease, color 0.15s ease, transform var(--dm-duration-fast) ease;
+        }
+        .hub-priority-bang.is-active {
+            transform: scale(1.08);
+        }
+
+        .nav-item {
+            transition: background var(--dm-duration-fast) ease, color var(--dm-duration-fast) ease, opacity var(--dm-duration) ease;
+        }
+
+        #today-search-panel {
+            display: block;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin-bottom: 0;
+            padding: 0 12px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: var(--bg-sidebar);
+            pointer-events: none;
+            transition:
+                max-height var(--dm-duration-slow) var(--dm-ease),
+                opacity var(--dm-duration) ease,
+                margin var(--dm-duration-slow) ease,
+                padding var(--dm-duration-slow) ease,
+                border-color var(--dm-duration) ease;
+        }
+        #today-search-panel.active {
+            max-height: 520px;
+            opacity: 1;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-color: var(--border-color);
+            pointer-events: auto;
+        }
+
+        .list-filter-panel:not(.list-filter-panel-static) {
+            display: flex;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            margin-top: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-color: transparent;
+            pointer-events: none;
+            transition:
+                max-height var(--dm-duration-slow) var(--dm-ease),
+                opacity var(--dm-duration) ease,
+                margin var(--dm-duration-slow) ease,
+                padding var(--dm-duration-slow) ease,
+                border-color var(--dm-duration) ease;
+        }
+        .list-filter-panel:not(.list-filter-panel-static).is-open {
+            max-height: 180px;
+            opacity: 1;
+            margin-top: 8px;
+            padding: 10px 12px;
+            border-color: var(--border-color);
+            pointer-events: auto;
+        }
+
+        .date-popover,
+        .ann-row-date-popover,
+        .cat-popover,
+        .today-menu-popover,
+        .cal-ym-popover,
+        #inline-date-popover {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.98);
+            transform-origin: top left;
+            pointer-events: none;
+            transition: opacity var(--dm-duration) var(--dm-ease), transform var(--dm-duration) var(--dm-ease);
+        }
+        .date-popover.dm-open,
+        .ann-row-date-popover.dm-open,
+        .cat-popover.dm-open,
+        .today-menu-popover.dm-open,
+        .cal-ym-popover.dm-open,
+        #inline-date-popover.dm-open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--dm-duration) ease;
+        }
+        .modal-overlay.dm-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #task-list-view.dm-view-enter,
+        #calendar-view.dm-view-enter,
+        #anniversary-view.dm-view-enter {
+            animation: dm-snap-fade var(--dm-duration) var(--dm-ease-out) both;
+        }
+
+        .modal-overlay.dm-open .modal-content,
+        .modal-overlay.dm-open .today-history-content,
+        .modal-overlay.dm-open .app-settings-panel {
+            animation: dm-scale-in var(--dm-duration-slow) var(--dm-ease) both;
+        }
+
+        .cal-cell {
+            transition: background-color var(--dm-duration-fast) ease, box-shadow var(--dm-duration-fast) ease;
+        }
+
+        .ann-list-tab {
+            transition: color var(--dm-duration-fast) ease, border-color var(--dm-duration-fast) ease, background var(--dm-duration-fast) ease;
+        }
+
+        .task-input-bar {
+            transition: border-color var(--dm-duration) ease, box-shadow var(--dm-duration) ease;
+        }
+
+        .list-toolbar-badge {
+            transition: opacity var(--dm-duration) ease, transform var(--dm-duration) ease;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .dm-snap-fade,
+            .dm-view-enter,
+            .modal-overlay.dm-open .modal-content,
+            .modal-overlay.dm-open .today-history-content,
+            .modal-overlay.dm-open .app-settings-panel {
+                animation: none !important;
+            }
+            .date-popover,
+            .ann-row-date-popover,
+            .cat-popover,
+            .today-menu-popover,
+            .cal-ym-popover,
+            #inline-date-popover,
+            .modal-overlay,
+            #today-search-panel,
+            .list-filter-panel:not(.list-filter-panel-static) {
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 <body data-theme="blue">
@@ -2059,15 +2676,11 @@
             </li>
             <li class="nav-item" data-tab="inbox">
                 <div class="nav-item-left"><span class="material-symbols-outlined">inbox</span><span class="nav-item-label">관리함</span></div>
-            </li>
-            <li class="nav-item" data-tab="anniversary">
+            </li><li class="nav-item" data-tab="anniversary">
                 <div class="nav-item-left"><span class="material-symbols-outlined">event</span><span class="nav-item-label">기념일</span></div>
             </li>
             <li class="nav-item" data-tab="calendar">
                 <div class="nav-item-left"><span class="material-symbols-outlined">calendar_month</span><span class="nav-item-label">달력 보기</span></div>
-            </li>
-            <li class="nav-item" data-tab="completed">
-                <div class="nav-item-left"><span class="material-symbols-outlined">check_circle</span><span class="nav-item-label">완료된 항목</span></div>
             </li>
             <li class="nav-item" data-tab="archive">
                 <div class="nav-item-left"><span class="material-symbols-outlined">archive</span><span class="nav-item-label">아카이브</span></div>
@@ -2079,9 +2692,13 @@
         <button id="add-category-btn">
             <span class="material-symbols-outlined">add</span> 새 카테고리
         </button>
-        <button type="button" class="aside-footer-btn" id="btn-app-settings" title="앱 설정">
-            <span class="material-symbols-outlined">settings</span>
-            앱 설정
+        <button type="button" class="aside-account-btn" id="aside-account-btn" title="계정">
+            <span class="material-symbols-outlined aside-account-avatar">account_circle</span>
+            <span class="aside-account-info">
+                <span class="aside-account-label">Google 계정</span>
+                <span class="aside-account-email" id="aside-account-email">-</span>
+            </span>
+            <span class="material-symbols-outlined aside-account-logout" aria-hidden="true">logout</span>
         </button>
     </aside>
 
@@ -2145,14 +2762,10 @@
                     <span id="date-trigger-label">오늘</span>
                 </button>
                 <div class="date-popover" id="date-popover" style="display: none;">
-                    <div class="popover-row">
-                        <label>시작일</label>
-                        <div id="pop-date-start-mount"></div>
+                    <div class="popover-row" id="pop-date-range-row">
+                        <label>날짜</label>
+                        <div id="pop-date-range-mount"></div>
                         <input type="hidden" id="pop-date-start">
-                    </div>
-                    <div class="popover-row">
-                        <label>종료일 (선택)</label>
-                        <div id="pop-date-end-mount"></div>
                         <input type="hidden" id="pop-date-end">
                     </div>
                     <div class="popover-row">
@@ -2163,6 +2776,7 @@
                             <option value="weekly">매주</option>
                             <option value="monthly">매월</option>
                             <option value="yearly">매년</option>
+                            <option value="dates">여러 날짜</option>
                         </select>
                     </div>
                     <label class="lunar-toggle">
@@ -2170,6 +2784,12 @@
                         음력 표시
                     </label>
                     <div class="lunar-hint" id="pop-lunar-hint"></div>
+                    <div class="popover-row recurrence-dates-bottom" id="pop-recurrence-dates-row" style="display:none;">
+                        <button type="button" class="btn-multi-date-pick" id="btn-pop-multi-dates">달력에서 여러 날짜 선택</button>
+                        <div id="pop-multi-dates-mount" style="display:none; margin-top:8px;"></div>
+                        <input type="hidden" id="pop-recurrence-dates" value="">
+                        <div class="multi-dates-summary" id="pop-multi-dates-summary"></div>
+                    </div>
                 </div>
             </div>
 
@@ -2209,24 +2829,86 @@
                     </div>
                 </div>
             </div>
-            <div id="archive-toolbar" class="archive-toolbar" aria-label="아카이브 분류">
-                <label class="archive-filter">
-                    연도
-                    <select id="archive-filter-year"></select>
-                </label>
-                <label class="archive-filter">
-                    카테고리
-                    <select id="archive-filter-category"></select>
-                </label>
-                <label class="archive-filter">
-                    묶기
-                    <select id="archive-group-by">
-                        <option value="year">연도별</option>
-                        <option value="category">카테고리별</option>
-                        <option value="none">목록만</option>
-                    </select>
-                </label>
-                <span class="archive-count" id="archive-count"></span>
+            <div id="inbox-filter-bar" class="list-toolbar" style="display:none;">
+                <div class="list-toolbar-row">
+                    <span class="list-toolbar-badge" id="inbox-filter-badge" style="display:none;">필터 적용 중</span>
+                    <button type="button" class="btn-list-toolbar" id="btn-inbox-filter-toggle" aria-expanded="false" aria-controls="inbox-toolbar">
+                        <span class="material-symbols-outlined">filter_list</span>
+                        필터
+                    </button>
+                </div>
+                <div id="inbox-toolbar" class="list-filter-panel" aria-label="관리함 필터">
+                    <label class="archive-filter">
+                        연도
+                        <select id="inbox-filter-year"></select>
+                    </label>
+                    <label class="archive-filter">
+                        월
+                        <select id="inbox-filter-month">
+                            <option value="all">전체</option>
+                            <option value="1">1월</option>
+                            <option value="2">2월</option>
+                            <option value="3">3월</option>
+                            <option value="4">4월</option>
+                            <option value="5">5월</option>
+                            <option value="6">6월</option>
+                            <option value="7">7월</option>
+                            <option value="8">8월</option>
+                            <option value="9">9월</option>
+                            <option value="10">10월</option>
+                            <option value="11">11월</option>
+                            <option value="12">12월</option>
+                        </select>
+                    </label>
+                    <label class="archive-filter">
+                        카테고리
+                        <select id="inbox-filter-category"></select>
+                    </label>
+                    <div class="list-filter-panel-footer">
+                        <button type="button" class="btn-list-toolbar" id="btn-inbox-filter-reset">
+                            <span class="material-symbols-outlined">restart_alt</span>
+                            초기화
+                        </button>
+                        <span class="list-filter-count" id="inbox-count"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="archive-filter-bar" class="list-toolbar" style="display:none;">
+                <div id="archive-toolbar" class="list-filter-panel list-filter-panel-static" aria-label="아카이브 필터">
+                    <label class="archive-filter">
+                        연도
+                        <select id="archive-filter-year"></select>
+                    </label>
+                    <label class="archive-filter">
+                        월
+                        <select id="archive-filter-month">
+                            <option value="all">전체</option>
+                            <option value="1">1월</option>
+                            <option value="2">2월</option>
+                            <option value="3">3월</option>
+                            <option value="4">4월</option>
+                            <option value="5">5월</option>
+                            <option value="6">6월</option>
+                            <option value="7">7월</option>
+                            <option value="8">8월</option>
+                            <option value="9">9월</option>
+                            <option value="10">10월</option>
+                            <option value="11">11월</option>
+                            <option value="12">12월</option>
+                        </select>
+                    </label>
+                    <label class="archive-filter">
+                        카테고리
+                        <select id="archive-filter-category"></select>
+                    </label>
+                    <div class="list-filter-panel-footer">
+                        <button type="button" class="btn-list-toolbar" id="btn-archive-filter-reset">
+                            <span class="material-symbols-outlined">restart_alt</span>
+                            초기화
+                        </button>
+                        <span class="list-filter-count" id="archive-count"></span>
+                    </div>
+                </div>
             </div>
             <div id="default-task-table" class="notion-table">
                 <div class="table-header grid-layout" id="default-task-header">
@@ -2235,7 +2917,10 @@
                         Aa 이름
                         <span class="material-symbols-outlined th-sort-icon" data-sort-icon="title">swap_vert</span>
                     </div>
-                    <div class="col-category"><span class="material-symbols-outlined">sell</span> 카테고리</div>
+                    <div class="col-category th-sortable" data-sort-key="category" role="button" tabindex="0" title="카테고리순 정렬">
+                        <span class="material-symbols-outlined">sell</span> 카테고리
+                        <span class="material-symbols-outlined th-sort-icon" data-sort-icon="category">swap_vert</span>
+                    </div>
                     <div class="col-date th-sortable" data-sort-key="date" role="button" tabindex="0" title="시작일순 정렬">
                         <span class="material-symbols-outlined">event</span> 날짜/반복
                         <span class="material-symbols-outlined th-sort-icon" data-sort-icon="date">swap_vert</span>
@@ -2271,6 +2956,7 @@
                                 <label>날짜</label>
                                 <div id="ann-pop-date-mount"></div>
                                 <input type="hidden" id="ann-pop-date">
+                                <input type="hidden" id="ann-pop-date-end">
                             </div>
                             <label class="lunar-toggle">
                                 <input type="checkbox" id="ann-pop-lunar-display">
@@ -2390,15 +3076,11 @@
     </div>
 
     <!-- 피드백: 표 인라인 날짜 수정 팝오버 -->
-    <div class="date-popover" id="inline-date-popover" style="display: none; position: fixed; z-index: 1000; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
-        <div class="popover-row">
-            <label>시작일</label>
-            <div id="inline-pop-date-start-mount"></div>
+    <div class="date-popover" id="inline-date-popover" style="display: none; position: fixed; z-index: 1000; box-shadow: 0 4px 16px rgba(0,0,0,0.2); width: 300px;">
+        <div class="popover-row" id="inline-pop-date-range-row">
+            <label>날짜</label>
+            <div id="inline-pop-date-range-mount"></div>
             <input type="hidden" id="inline-pop-date-start">
-        </div>
-        <div class="popover-row">
-            <label>종료일 (선택)</label>
-            <div id="inline-pop-date-end-mount"></div>
             <input type="hidden" id="inline-pop-date-end">
         </div>
         <div class="popover-row">
@@ -2409,6 +3091,7 @@
                 <option value="weekly">매주</option>
                 <option value="monthly">매월</option>
                 <option value="yearly">매년</option>
+                <option value="dates">여러 날짜</option>
             </select>
         </div>
         <label class="lunar-toggle">
@@ -2416,17 +3099,25 @@
             음력 표시
         </label>
         <div class="lunar-hint" id="inline-pop-lunar-hint"></div>
+        <div class="popover-row recurrence-dates-bottom" id="inline-pop-recurrence-dates-row" style="display:none;">
+            <button type="button" class="btn-multi-date-pick" id="btn-inline-pop-multi-dates">달력에서 여러 날짜 선택</button>
+            <div id="inline-pop-multi-dates-mount" style="display:none; margin-top:8px;"></div>
+            <input type="hidden" id="inline-pop-recurrence-dates" value="">
+            <div class="multi-dates-summary" id="inline-pop-multi-dates-summary"></div>
+        </div>
     </div>
 
     <!-- 피드백: 캘린더용 상세 추가 모달 -->
     <div id="cal-task-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>새 업무 추가</h3>
+        <div class="modal-content" style="width:420px; max-width:95vw;">
+            <h3 id="modal-title-heading">새 업무 추가</h3>
             <input type="text" id="modal-title" placeholder="업무 이름" autocomplete="off">
             <select id="modal-category"></select>
-            <div style="display:flex; gap:10px;">
-                <div style="flex:1;"><div id="modal-date-start-mount"></div><input type="hidden" id="modal-date-start"></div>
-                <div style="flex:1;"><div id="modal-date-end-mount"></div><input type="hidden" id="modal-date-end"></div>
+            <div class="popover-row" id="modal-date-range-row" style="margin-top:8px;">
+                <label>날짜</label>
+                <div id="modal-date-range-mount"></div>
+                <input type="hidden" id="modal-date-start">
+                <input type="hidden" id="modal-date-end">
             </div>
             <select id="modal-recurrence">
                 <option value="none">반복 안함</option>
@@ -2434,16 +3125,23 @@
                 <option value="weekly">매주</option>
                 <option value="monthly">매월</option>
                 <option value="yearly">매년</option>
+                <option value="dates">여러 날짜</option>
             </select>
             <label class="lunar-toggle">
                 <input type="checkbox" id="modal-lunar-toggle">
                 음력 표시
             </label>
             <div class="lunar-hint" id="modal-lunar-hint"></div>
+            <div class="popover-row recurrence-dates-bottom" id="modal-recurrence-dates-row" style="display:none;">
+                <button type="button" class="btn-multi-date-pick" id="btn-modal-multi-dates">달력에서 여러 날짜 선택</button>
+                <div id="modal-multi-dates-mount" style="display:none; margin-top:8px;"></div>
+                <input type="hidden" id="modal-recurrence-dates" value="">
+                <div class="multi-dates-summary" id="modal-multi-dates-summary"></div>
+            </div>
             <input type="text" id="modal-desc" placeholder="세부 내용 메모" autocomplete="off">
             <div class="modal-actions">
                 <button class="btn-modal-cancel" onclick="closeTaskModal()">취소</button>
-                <button class="btn-modal-save" onclick="saveTaskFromModal()">추가</button>
+                <button class="btn-modal-save" id="btn-modal-save" onclick="saveTaskFromModal()">추가</button>
             </div>
         </div>
     </div>
@@ -2532,32 +3230,6 @@
             <div class="modal-actions">
                 <button type="button" class="btn-modal-cancel" id="today-reset-cancel">취소</button>
                 <button type="button" class="btn-modal-save" id="today-reset-save">저장</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-settings-modal" class="modal-overlay">
-        <div class="modal-content" style="width:380px;">
-            <h3>앱 설정</h3>
-            <p style="font-size:0.85rem;color:var(--text-light);margin:0 0 14px;line-height:1.5;">
-                관리함·카테고리에서 완료한 항목은 바로 「완료된 항목」으로 보내지 않고, 아래쪽에 잠시 남았다가 설정한 기간이 지나면 넘어갑니다. 모든 완료 항목은 「아카이브」에서도 연도·카테고리로 볼 수 있습니다.
-            </p>
-            <div class="popover-row">
-                <label>완료 후 목록에 남길 기간</label>
-                <select id="completed-hold-days">
-                    <option value="0">바로 「완료된 항목」으로</option>
-                    <option value="1">1일</option>
-                    <option value="3">3일</option>
-                    <option value="7">7일</option>
-                    <option value="14">14일 (기본)</option>
-                    <option value="30">30일</option>
-                    <option value="60">60일</option>
-                    <option value="90">90일</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-modal-cancel" id="app-settings-cancel">취소</button>
-                <button type="button" class="btn-modal-save" id="app-settings-save">저장</button>
             </div>
         </div>
     </div>
@@ -2775,9 +3447,490 @@
         }
 
         const customDatePickers = {};
+        const rangeDatePickers = {};
+        const multiDatePickers = {};
         let openCustomDatePickerId = null;
         const CDP_YEAR_MIN = 1950;
         const CDP_YEAR_MAX = 2100;
+
+        function parseRecurrenceDatesHidden(hiddenId) {
+            const raw = document.getElementById(hiddenId)?.value || '';
+            if (!raw) return [];
+            try {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed.filter(Boolean).sort() : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function formatDatesCommaList(dates) {
+            if (!dates || !dates.length) return '';
+            return dates.slice().sort().map(d => {
+                const parts = String(d).split('-');
+                if (parts.length >= 3) {
+                    const m = parseInt(parts[1], 10);
+                    const day = parseInt(parts[2], 10);
+                    if (Number.isFinite(m) && Number.isFinite(day)) return `${m}/${day}`;
+                }
+                return formatKoreanDateShort(d).replace(/^\d+년 /, '');
+            }).join(', ');
+        }
+
+        function formatMultiDatesSummary(dates) {
+            if (!dates || !dates.length) return '선택된 날짜 없음';
+            return formatDatesCommaList(dates);
+        }
+
+        function getRangeDayClasses(dateStr, start, end, col) {
+            if (!start) return '';
+            if (!end || start === end) {
+                return dateStr === start ? ' is-range-start is-range-end' : '';
+            }
+            if (dateStr === start) return ' is-range-start';
+            if (dateStr === end) return ' is-range-end';
+            if (dateStr > start && dateStr < end) {
+                let cls = ' is-in-range';
+                if (col === 0) cls += ' is-range-row-start';
+                if (col === 6) cls += ' is-range-row-end';
+                return cls;
+            }
+            return '';
+        }
+
+        function initRangeDatePicker(mountId, startHiddenId, endHiddenId, onChange, options = {}) {
+            const singleDate = options.singleDate === true;
+            const mount = document.getElementById(mountId);
+            const startHidden = document.getElementById(startHiddenId);
+            const endHidden = document.getElementById(endHiddenId);
+            if (!mount || !startHidden || !endHidden) return;
+
+            let viewDate = startHidden.value ? parseDateStr(startHidden.value) : new Date();
+
+            mount.innerHTML = `
+                <div class="range-date-picker" data-mount="${mountId}">
+                    <div class="cdp-header">
+                        <button type="button" class="cdp-nav" data-dir="-1">◀</button>
+                        <button type="button" class="cdp-month-label" data-role="month-label"></button>
+                        <button type="button" class="cdp-nav" data-dir="1">▶</button>
+                    </div>
+                    <div class="cdp-weekdays" data-role="weekdays"></div>
+                    <div class="cdp-days" data-role="days"></div>
+                    <div class="cdp-selected-info" data-role="info"></div>
+                    <div class="cdp-footer">
+                        <button type="button" data-role="today">오늘</button>
+                        <button type="button" data-role="clear">지우기</button>
+                    </div>
+                </div>`;
+
+            const root = mount.querySelector('.range-date-picker');
+            const monthLabel = root.querySelector('[data-role="month-label"]');
+            const daysEl = root.querySelector('[data-role="days"]');
+            const weekdaysEl = root.querySelector('[data-role="weekdays"]');
+            const infoEl = root.querySelector('[data-role="info"]');
+
+            function updateInfo() {
+                const start = startHidden.value;
+                const end = endHidden.value;
+                if (!start) {
+                    infoEl.textContent = '';
+                    return;
+                }
+                let info = formatKoreanDateShort(start);
+                if (end && end !== start) info += ` ~ ${formatKoreanDateShort(end).replace(/^\d+년 /, '')}`;
+                if (showLunarDates) {
+                    const lunar = formatLunarShort(start);
+                    if (lunar) info += ` · ${lunar}`;
+                }
+                infoEl.textContent = info;
+            }
+
+            function renderGrid() {
+                monthLabel.textContent = formatKoreanMonthYear(viewDate);
+                weekdaysEl.innerHTML = ['일', '월', '화', '수', '목', '금', '토']
+                    .map(d => `<div class="cdp-weekday">${d}</div>`).join('');
+
+                const year = viewDate.getFullYear();
+                const month = viewDate.getMonth();
+                const firstDay = new Date(year, month, 1).getDay();
+                const lastDay = new Date(year, month + 1, 0).getDate();
+                const prevLast = new Date(year, month, 0).getDate();
+                const todayStr = getTodayString();
+                const start = startHidden.value;
+                const end = endHidden.value;
+                let html = '';
+
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    const d = prevLast - i;
+                    html += `<button type="button" class="cdp-day is-other" disabled>${d}</button>`;
+                }
+                for (let d = 1; d <= lastDay; d++) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const dow = new Date(year, month, d).getDay();
+                    const col = (firstDay + d - 1) % 7;
+                    const lunar = showLunarDates ? formatLunarShort(dateStr) : '';
+                    const rangeCls = getRangeDayClasses(dateStr, start, end, col);
+                    html += `<button type="button" class="cdp-day${dow === 0 ? ' is-sunday' : ''}${dateStr === todayStr ? ' is-today' : ''}${rangeCls}" data-date="${dateStr}">
+                        <span>${d}</span>
+                        ${lunar ? `<span class="cdp-lunar">${lunar}</span>` : ''}
+                    </button>`;
+                }
+                const totalCells = firstDay + lastDay;
+                const remain = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+                for (let i = 1; i <= remain; i++) {
+                    html += `<button type="button" class="cdp-day is-other" disabled>${i}</button>`;
+                }
+                daysEl.innerHTML = html;
+                updateInfo();
+            }
+
+            function setValues(start, end, silent) {
+                startHidden.value = start || '';
+                endHidden.value = end || '';
+                if (start) viewDate = parseDateStr(start);
+                renderGrid();
+                if (!silent && onChange) onChange();
+            }
+
+            daysEl.addEventListener('click', (e) => {
+                const btn = e.target.closest('.cdp-day[data-date]');
+                if (!btn) return;
+                e.stopPropagation();
+                const dateStr = btn.dataset.date;
+                const start = startHidden.value;
+                const end = endHidden.value;
+
+                if (singleDate) {
+                    startHidden.value = dateStr;
+                    endHidden.value = '';
+                } else if (!start || (start && end)) {
+                    startHidden.value = dateStr;
+                    endHidden.value = '';
+                } else if (dateStr < start) {
+                    startHidden.value = dateStr;
+                    endHidden.value = '';
+                } else {
+                    endHidden.value = dateStr;
+                }
+                renderGrid();
+                if (onChange) onChange();
+            });
+
+            root.querySelectorAll('.cdp-nav').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    viewDate.setMonth(viewDate.getMonth() + parseInt(btn.dataset.dir, 10));
+                    renderGrid();
+                });
+            });
+
+            root.querySelector('[data-role="today"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                setValues(getTodayString(), '');
+            });
+            root.querySelector('[data-role="clear"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                setValues('', '');
+            });
+
+            rangeDatePickers[mountId] = { setValues, renderGrid, singleDate };
+            renderGrid();
+        }
+
+        function initAnniversarySingleDatePicker(mountId, hiddenId, onChange, options = {}) {
+            const mount = document.getElementById(mountId);
+            const hidden = document.getElementById(hiddenId);
+            if (!mount || !hidden) return;
+
+            const endId = `${hiddenId}-end`;
+            let endHidden = document.getElementById(endId);
+            if (!endHidden) {
+                endHidden = document.createElement('input');
+                endHidden.type = 'hidden';
+                endHidden.id = endId;
+                mount.parentElement?.appendChild(endHidden);
+            }
+
+            if (options.inline) {
+                initRangeDatePicker(mountId, hiddenId, endId, onChange, { singleDate: true });
+                return;
+            }
+
+            const anniversaryId = options.anniversaryId || null;
+            mount.innerHTML = `
+                <div class="ann-row-date-picker" data-hidden-id="${hiddenId}">
+                    <button type="button" class="btn-date-trigger ann-row-date-trigger" data-role="trigger">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        <span data-role="label">${hidden.value ? formatKoreanDateShort(hidden.value) : (options.placeholder || '날짜 선택')}</span>
+                    </button>
+                </div>`;
+
+            const trigger = mount.querySelector('[data-role="trigger"]');
+            const labelEl = mount.querySelector('[data-role="label"]');
+            let popover = null;
+            let pickerMountId = `${mountId}-picker`;
+
+            function ensurePopover() {
+                if (popover) return popover;
+                const floatEndId = `${endId}-float`;
+                popover = document.createElement('div');
+                popover.className = 'date-popover ann-row-date-popover';
+                popover.style.display = 'none';
+                popover.innerHTML = `<div id="${pickerMountId}"></div><input type="hidden" id="${floatEndId}">`;
+                document.body.appendChild(popover);
+                initRangeDatePicker(pickerMountId, hiddenId, floatEndId, () => {
+                    const dateStr = hidden.value || '';
+                    labelEl.textContent = dateStr ? formatKoreanDateShort(dateStr) : (options.placeholder || '날짜 선택');
+                    if (anniversaryId) updateAnniversaryInline(anniversaryId, 'dateStart', dateStr);
+                    else if (onChange) onChange();
+                    closePopover();
+                }, { singleDate: true });
+                return popover;
+            }
+
+            function closePopover() {
+                if (!popover) return;
+                dmSetFloating(popover, false);
+            }
+
+            function openPopover() {
+                const pop = ensurePopover();
+                setSingleDatePickerValue(hiddenId, pickerMountId, hidden.value || '');
+                const rect = trigger.getBoundingClientRect();
+                rangeDatePickers[pickerMountId]?.renderGrid?.();
+                let top = rect.bottom + 4;
+                let left = rect.left;
+                pop.style.top = `${top}px`;
+                pop.style.left = `${left}px`;
+                dmSetFloating(pop, true);
+                const popRect = pop.getBoundingClientRect();
+                if (top + popRect.height > window.innerHeight - 8) top = Math.max(8, rect.top - popRect.height - 4);
+                if (left + popRect.width > window.innerWidth - 8) left = Math.max(8, window.innerWidth - popRect.width - 8);
+                pop.style.top = `${top}px`;
+                pop.style.left = `${left}px`;
+            }
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (popover && dmIsFloatingVisible(popover)) closePopover();
+                else openPopover();
+            });
+
+            if (anniversaryId) {
+                customDatePickers[hiddenId] = {
+                    setValue(value, silent) {
+                        setSingleDatePickerValue(hiddenId, pickerMountId, value || '');
+                        labelEl.textContent = value ? formatKoreanDateShort(value) : (options.placeholder || '날짜 선택');
+                        if (!silent && onChange) onChange();
+                    },
+                    closeDropdown: closePopover
+                };
+            }
+        }
+
+        function setSingleDatePickerValue(hiddenId, mountId, value) {
+            const endId = `${hiddenId}-end`;
+            if (mountId && rangeDatePickers[mountId]) {
+                rangeDatePickers[mountId].setValues(value || '', '', true);
+                return;
+            }
+            const hidden = document.getElementById(hiddenId);
+            const endHidden = document.getElementById(endId);
+            if (hidden) hidden.value = value || '';
+            if (endHidden) endHidden.value = '';
+        }
+
+        function initMultiDatePicker(mountId, hiddenId, summaryId, onChange) {
+            const mount = document.getElementById(mountId);
+            const hidden = document.getElementById(hiddenId);
+            const summaryEl = summaryId ? document.getElementById(summaryId) : null;
+            if (!mount || !hidden) return;
+
+            let viewDate = new Date();
+            let selected = parseRecurrenceDatesHidden(hiddenId);
+
+            mount.innerHTML = `
+                <div class="multi-date-picker" data-mount="${mountId}">
+                    <div class="cdp-header">
+                        <button type="button" class="cdp-nav" data-dir="-1">◀</button>
+                        <button type="button" class="cdp-month-label" data-role="month-label"></button>
+                        <button type="button" class="cdp-nav" data-dir="1">▶</button>
+                    </div>
+                    <div class="cdp-weekdays" data-role="weekdays"></div>
+                    <div class="cdp-days" data-role="days"></div>
+                    <div class="multi-date-hint">날짜를 눌러 선택 · 다시 누르면 해제</div>
+                    <div class="cdp-footer">
+                        <button type="button" data-role="clear">전체 해제</button>
+                    </div>
+                </div>`;
+
+            const root = mount.querySelector('.multi-date-picker');
+            const monthLabel = root.querySelector('[data-role="month-label"]');
+            const daysEl = root.querySelector('[data-role="days"]');
+            const weekdaysEl = root.querySelector('[data-role="weekdays"]');
+
+            function syncHidden() {
+                selected = selected.slice().sort();
+                hidden.value = JSON.stringify(selected);
+                if (summaryEl) summaryEl.textContent = formatMultiDatesSummary(selected);
+                if (onChange) onChange();
+            }
+
+            function renderGrid() {
+                monthLabel.textContent = formatKoreanMonthYear(viewDate);
+                weekdaysEl.innerHTML = ['일', '월', '화', '수', '목', '금', '토']
+                    .map(d => `<div class="cdp-weekday">${d}</div>`).join('');
+
+                const year = viewDate.getFullYear();
+                const month = viewDate.getMonth();
+                const firstDay = new Date(year, month, 1).getDay();
+                const lastDay = new Date(year, month + 1, 0).getDate();
+                const prevLast = new Date(year, month, 0).getDate();
+                const todayStr = getTodayString();
+                let html = '';
+
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    html += `<button type="button" class="cdp-day is-other" disabled>${prevLast - i}</button>`;
+                }
+                for (let d = 1; d <= lastDay; d++) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const dow = new Date(year, month, d).getDay();
+                    const lunar = showLunarDates ? formatLunarShort(dateStr) : '';
+                    const picked = selected.includes(dateStr);
+                    html += `<button type="button" class="cdp-day${dow === 0 ? ' is-sunday' : ''}${dateStr === todayStr ? ' is-today' : ''}${picked ? ' is-multi-selected' : ''}" data-date="${dateStr}">
+                        <span>${d}</span>
+                        ${lunar ? `<span class="cdp-lunar">${lunar}</span>` : ''}
+                    </button>`;
+                }
+                const totalCells = firstDay + lastDay;
+                const remain = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+                for (let i = 1; i <= remain; i++) {
+                    html += `<button type="button" class="cdp-day is-other" disabled>${i}</button>`;
+                }
+                daysEl.innerHTML = html;
+            }
+
+            function setValues(dates, silent) {
+                selected = Array.isArray(dates) ? dates.filter(Boolean).slice().sort() : [];
+                hidden.value = JSON.stringify(selected);
+                if (selected.length) viewDate = parseDateStr(selected[0]);
+                renderGrid();
+                if (summaryEl) summaryEl.textContent = formatMultiDatesSummary(selected);
+                if (!silent && onChange) onChange();
+            }
+
+            daysEl.addEventListener('click', (e) => {
+                const btn = e.target.closest('.cdp-day[data-date]');
+                if (!btn) return;
+                e.stopPropagation();
+                const dateStr = btn.dataset.date;
+                if (selected.includes(dateStr)) selected = selected.filter(d => d !== dateStr);
+                else selected = selected.concat(dateStr);
+                selected.sort();
+                syncHidden();
+                renderGrid();
+            });
+
+            root.querySelectorAll('.cdp-nav').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    viewDate.setMonth(viewDate.getMonth() + parseInt(btn.dataset.dir, 10));
+                    renderGrid();
+                });
+            });
+
+            root.querySelector('[data-role="clear"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                selected = [];
+                syncHidden();
+                renderGrid();
+            });
+
+            multiDatePickers[mountId] = { setValues, renderGrid };
+            renderGrid();
+            if (summaryEl) summaryEl.textContent = formatMultiDatesSummary(selected);
+        }
+
+        function setRangeDateValues(startHiddenId, endHiddenId, start, end) {
+            const mountIds = {
+                'pop-date-start': 'pop-date-range-mount',
+                'inline-pop-date-start': 'inline-pop-date-range-mount',
+                'modal-date-start': 'modal-date-range-mount',
+                'ann-pop-date': 'ann-pop-date-mount'
+            };
+            const mountId = mountIds[startHiddenId];
+            if (mountId && rangeDatePickers[mountId]) {
+                rangeDatePickers[mountId].setValues(start || '', end || '', true);
+            } else {
+                const startEl = document.getElementById(startHiddenId);
+                const endEl = document.getElementById(endHiddenId);
+                if (startEl) startEl.value = start || '';
+                if (endEl) endEl.value = end || '';
+            }
+        }
+
+        function setMultiDateValues(hiddenId, dates) {
+            const mountIds = {
+                'pop-recurrence-dates': 'pop-multi-dates-mount',
+                'inline-pop-recurrence-dates': 'inline-pop-multi-dates-mount',
+                'modal-recurrence-dates': 'modal-multi-dates-mount'
+            };
+            const mountId = mountIds[hiddenId];
+            if (mountId && multiDatePickers[mountId]) {
+                multiDatePickers[mountId].setValues(dates || [], true);
+            } else {
+                const el = document.getElementById(hiddenId);
+                if (el) el.value = JSON.stringify((dates || []).slice().sort());
+            }
+            const summaryIds = {
+                'pop-recurrence-dates': 'pop-multi-dates-summary',
+                'inline-pop-recurrence-dates': 'inline-pop-multi-dates-summary',
+                'modal-recurrence-dates': 'modal-multi-dates-summary'
+            };
+            const summaryEl = document.getElementById(summaryIds[hiddenId]);
+            if (summaryEl) summaryEl.textContent = formatMultiDatesSummary(dates || []);
+        }
+
+        function syncRecurrenceDatesRow(prefix) {
+            const isModal = prefix === 'modal';
+            const recurrenceId = isModal ? 'modal-recurrence' : `${prefix}-recurrence`;
+            const rowId = isModal ? 'modal-recurrence-dates-row' : `${prefix}-recurrence-dates-row`;
+            const rangeRowId = isModal ? 'modal-date-range-row' : `${prefix}-date-range-row`;
+            const mountId = isModal ? 'modal-multi-dates-mount' : `${prefix}-multi-dates-mount`;
+            const btnId = isModal ? 'btn-modal-multi-dates' : `btn-${prefix}-multi-dates`;
+            const recurrence = document.getElementById(recurrenceId)?.value || 'none';
+            const row = document.getElementById(rowId);
+            const rangeRow = document.getElementById(rangeRowId);
+            const mount = document.getElementById(mountId);
+            const btn = document.getElementById(btnId);
+            const isDatesMode = recurrence === 'dates';
+
+            if (rangeRow) rangeRow.style.display = isDatesMode ? 'none' : 'flex';
+            if (row) row.style.display = isDatesMode ? 'flex' : 'none';
+            if (mount) {
+                mount.style.display = isDatesMode ? 'block' : 'none';
+                if (isDatesMode) multiDatePickers[mountId]?.renderGrid?.();
+            }
+            if (btn) {
+                btn.textContent = isDatesMode && mount && mount.style.display === 'block'
+                    ? '달력 숨기기'
+                    : '달력에서 여러 날짜 선택';
+            }
+        }
+
+        function bindMultiDateToggle(btnId, mountId, prefix) {
+            const btn = document.getElementById(btnId);
+            const mount = document.getElementById(mountId);
+            if (!btn || !mount || btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = mount.style.display !== 'block';
+                mount.style.display = open ? 'block' : 'none';
+                btn.textContent = open ? '달력 숨기기' : '달력에서 여러 날짜 선택';
+                if (open) multiDatePickers[mountId]?.renderGrid?.();
+            });
+        }
 
         function initCustomDatePicker(hiddenInputId, mountId, onChange, options = {}) {
             const hidden = document.getElementById(hiddenInputId);
@@ -3200,30 +4353,36 @@
         }
 
         function initAllCustomDatePickers() {
-            initCustomDatePicker('pop-date-start', 'pop-date-start-mount', syncInputDateFromPopover, { placeholder: '시작일 선택' });
-            initCustomDatePicker('pop-date-end', 'pop-date-end-mount', syncInputDateFromPopover, { placeholder: '종료일 선택' });
-            initCustomDatePicker('ann-pop-date', 'ann-pop-date-mount', syncAnnDateFromPopover, { placeholder: '날짜 선택' });
-            initCustomDatePicker('inline-pop-date-start', 'inline-pop-date-start-mount', applyInlineDateChange, { placeholder: '시작일 선택' });
-            initCustomDatePicker('inline-pop-date-end', 'inline-pop-date-end-mount', applyInlineDateChange, { placeholder: '종료일 선택' });
-            initCustomDatePicker('modal-date-start', 'modal-date-start-mount', () => {
+            initRangeDatePicker('pop-date-range-mount', 'pop-date-start', 'pop-date-end', syncInputDateFromPopover);
+            initMultiDatePicker('pop-multi-dates-mount', 'pop-recurrence-dates', 'pop-multi-dates-summary', syncInputDateFromPopover);
+            initRangeDatePicker('inline-pop-date-range-mount', 'inline-pop-date-start', 'inline-pop-date-end', applyInlineDateChange);
+            initMultiDatePicker('inline-pop-multi-dates-mount', 'inline-pop-recurrence-dates', 'inline-pop-multi-dates-summary', applyInlineDateChange);
+            initRangeDatePicker('modal-date-range-mount', 'modal-date-start', 'modal-date-end', () => {
                 updateLunarHint('modal-lunar-hint',
                     document.getElementById('modal-date-start').value,
                     document.getElementById('modal-date-end').value);
-            }, { placeholder: '시작일 선택' });
-            initCustomDatePicker('modal-date-end', 'modal-date-end-mount', () => {
-                updateLunarHint('modal-lunar-hint',
-                    document.getElementById('modal-date-start').value,
-                    document.getElementById('modal-date-end').value);
-            }, { placeholder: '종료일 선택' });
+                syncRecurrenceDatesRow('modal');
+            });
+            initMultiDatePicker('modal-multi-dates-mount', 'modal-recurrence-dates', 'modal-multi-dates-summary', () => {
+                syncRecurrenceDatesRow('modal');
+            });
+            initRangeDatePicker('ann-pop-date-mount', 'ann-pop-date', 'ann-pop-date-end', syncAnnDateFromPopover, { singleDate: true });
+            bindMultiDateToggle('btn-pop-multi-dates', 'pop-multi-dates-mount', 'pop');
+            bindMultiDateToggle('btn-inline-pop-multi-dates', 'inline-pop-multi-dates-mount', 'inline-pop');
+            bindMultiDateToggle('btn-modal-multi-dates', 'modal-multi-dates-mount', 'modal');
         }
 
         function refreshAllCustomDatePickers() {
             Object.values(customDatePickers).forEach(p => p.renderGrid && p.renderGrid());
+            Object.values(rangeDatePickers).forEach(p => p.renderGrid && p.renderGrid());
+            Object.values(multiDatePickers).forEach(p => p.renderGrid && p.renderGrid());
         }
 
         function setCustomDateValue(id, value) {
             if (customDatePickers[id]) customDatePickers[id].setValue(value || '', true);
-            else {
+            else if (id === 'ann-pop-date') {
+                setSingleDatePickerValue('ann-pop-date', 'ann-pop-date-mount', value || '');
+            } else {
                 const el = document.getElementById(id);
                 if (el) el.value = value || '';
             }
@@ -3241,12 +4400,12 @@
             renderAnnCategories();
             const input = document.getElementById('ann-cat-add-input');
             if (input) input.value = '';
-            document.getElementById('ann-category-modal').style.display = 'flex';
+            dmOpenOverlay(document.getElementById('ann-category-modal'));
             setTimeout(() => input?.focus(), 0);
         };
 
         window.closeAnnCategoryModal = function() {
-            document.getElementById('ann-category-modal').style.display = 'none';
+            dmCloseOverlay(document.getElementById('ann-category-modal'));
         };
 
         function saveAnniversaryCategories() {
@@ -3349,6 +4508,8 @@
         let tasks = JSON.parse(appStorage.getItem('notion_app_tasks')) || [];
         tasks.forEach((t, i) => {
             if (t.sortOrder === undefined) t.sortOrder = i;
+            if (t.hubPriority === undefined) t.hubPriority = false;
+            if (t.completed && t.hubPriority) t.hubPriority = false;
         });
         let anniversaries = JSON.parse(appStorage.getItem('notion_app_anniversaries')) || [];
         anniversaries.forEach((a, i) => {
@@ -3365,7 +4526,7 @@
 
         function closeCalYmPicker() {
             const pop = document.getElementById('cal-ym-popover');
-            if (pop) pop.style.display = 'none';
+            if (pop) dmSetFloating(pop, false, 'block');
             calYmPickerOpen = false;
         }
 
@@ -3403,7 +4564,7 @@
             calYmPickYear = currentCalDate.getFullYear();
             calYmPickerOpen = true;
             renderCalYmPicker();
-            pop.style.display = 'block';
+            dmSetFloating(pop, true, 'block');
             const rect = anchorEl.getBoundingClientRect();
             let top = rect.bottom + 6;
             let left = rect.left + rect.width / 2 - pop.offsetWidth / 2;
@@ -3461,7 +4622,9 @@
         let categories = loadCategories();
         let currentTheme = appStorage.getItem('notion_app_theme') || 'blue';
         let currentTab = 'today';
-        /** 목록 정렬: date(시작일) | title(이름) | manual(드래그 순서) */
+        let lastRenderedTab = null;
+        let dmSuppressContentFade = false;
+        /** 목록 정렬: date(시작일) | title(이름) | category(카테고리) | manual(드래그 순서) */
         let taskListSortKey = 'date';
         let taskListSortDir = 'asc';
 
@@ -3471,7 +4634,7 @@
         }
 
         function setTaskListSort(key) {
-            if (key !== 'title' && key !== 'date') return;
+            if (key !== 'title' && key !== 'date' && key !== 'category') return;
             if (taskListSortKey === key) {
                 taskListSortDir = taskListSortDir === 'asc' ? 'desc' : 'asc';
             } else {
@@ -3499,6 +4662,12 @@
 
         function hasTaskStartDate(task) {
             return !!(task && task.dateStart);
+        }
+
+        function isMultiDateTask(task) {
+            return task.recurrence === 'dates' &&
+                Array.isArray(task.recurrenceDates) &&
+                task.recurrenceDates.length > 0;
         }
 
         function compareTaskInputOrder(a, b) {
@@ -3538,6 +4707,16 @@
         function compareTaskTitle(a, b) {
             return (a.title || '').localeCompare(b.title || '', 'ko', { sensitivity: 'base', numeric: true });
         }
+
+        function compareTaskCategory(a, b) {
+            const la = getTaskArchiveCategoryLabel(getTaskArchiveCategoryKey(a));
+            const lb = getTaskArchiveCategoryLabel(getTaskArchiveCategoryKey(b));
+            return la.localeCompare(lb, 'ko', { sensitivity: 'base', numeric: true });
+        }
+
+        function isInboxCategoryTask(task) {
+            return getTaskArchiveCategoryKey(task) === 'inbox';
+        }
         let searchQuery = '';
         let editingCategoryName = null;
         let isCreatingCategory = false;
@@ -3568,7 +4747,8 @@
         let tempDateConfig = {
             start: '',
             end: '',
-            recurrence: 'none'
+            recurrence: 'none',
+            recurrenceDates: []
         };
 
         function getTodayString() {
@@ -3597,12 +4777,6 @@
             return 14;
         }
 
-        function setCompletedHoldDays(days) {
-            const n = parseInt(days, 10);
-            const value = Number.isFinite(n) && n >= 0 && n <= 365 ? n : 14;
-            appStorage.setItem('notion_app_completed_hold_days', String(value));
-            return value;
-        }
 
         /** 완료했지만 아직 원본 목록(관리함·카테고리) 하단에 남아 있는 상태 */
         function isRecentlyCompleted(task) {
@@ -3614,23 +4788,71 @@
             return (Date.now() - completedAt) < holdDays * 24 * 60 * 60 * 1000;
         }
 
-        /** 「완료된 항목」 탭: 보류 기간이 지난 완료 (오늘 할 일 제외) */
-        function isInCompletedList(task) {
-            if (!task || !task.completed || isTodayPlanTask(task)) return false;
-            if (isRecentlyCompleted(task)) return false;
-            return true;
-        }
-
         /** 「아카이브」: 모든 완료된 항목 (오늘 할 일 제외) */
         function isInArchiveList(task) {
             if (!task || !task.completed || isTodayPlanTask(task)) return false;
             return true;
         }
 
-        let archiveFilterYear = appStorage.getItem('notion_app_archive_filter_year') || 'all';
-        let archiveFilterCategory = appStorage.getItem('notion_app_archive_filter_category') || 'all';
-        let archiveGroupBy = appStorage.getItem('notion_app_archive_group_by') || 'year';
-        if (!['year', 'category', 'none'].includes(archiveGroupBy)) archiveGroupBy = 'year';
+        let archiveFilterYear = 'all';
+        let archiveFilterCategory = 'all';
+        let archiveFilterMonth = 'all';
+
+        let inboxFilterYear = 'all';
+        let inboxFilterMonth = 'all';
+        let inboxFilterCategory = 'all';
+        let inboxFilterPanelOpen = false;
+
+        function loadHubCategoryKeys() {
+            const raw = appStorage.getItem('notion_app_hub_categories');
+            if (raw) {
+                try {
+                    const arr = JSON.parse(raw);
+                    if (Array.isArray(arr)) {
+                        return new Set(arr.filter(k => k && k !== 'inbox'));
+                    }
+                } catch (_) { /* ignore */ }
+            }
+            return null;
+        }
+
+        function getDefaultHubCategoryKeys() {
+            return new Set(categories.map(c => c.name));
+        }
+
+        let hubCategoryKeys = loadHubCategoryKeys() || getDefaultHubCategoryKeys();
+
+        function saveHubCategoryKeys() {
+            appStorage.setItem('notion_app_hub_categories', JSON.stringify([...hubCategoryKeys]));
+        }
+
+        function syncHubCategoryKeysWithCategories() {
+            let changed = false;
+            [...hubCategoryKeys].forEach(key => {
+                if (!categories.some(c => c.name === key)) {
+                    hubCategoryKeys.delete(key);
+                    changed = true;
+                }
+            });
+            if (changed) saveHubCategoryKeys();
+        }
+
+        function setHubCategoryIncluded(key, included) {
+            saveWithUndo();
+            if (included) hubCategoryKeys.add(key);
+            else hubCategoryKeys.delete(key);
+            saveHubCategoryKeys();
+            document.querySelectorAll('#category-nav .nav-item[data-cat-key]').forEach(li => {
+                const on = hubCategoryKeys.has(li.dataset.catKey);
+                li.classList.toggle('hub-included', on);
+                li.classList.toggle('hub-excluded', !on);
+            });
+            if (currentTab === 'inbox') renderApp();
+        }
+
+        function toggleHubCategory(key) {
+            setHubCategoryIncluded(key, !hubCategoryKeys.has(key));
+        }
 
         function getTaskArchiveYear(task) {
             if (task?.completedAt) {
@@ -3660,74 +4882,216 @@
             return sortTasksForDisplay(list);
         }
 
-        function applyArchiveFilters(list) {
+        function applyYearMonthCategoryFilters(list, year, month, category) {
             return list.filter(t => {
-                if (archiveFilterYear !== 'all') {
-                    const y = getTaskArchiveYear(t);
-                    if (String(y ?? 'unknown') !== String(archiveFilterYear)) return false;
+                if (year !== 'all' || month !== 'all') {
+                    const y = getTaskScheduleYear(t);
+                    const m = getTaskScheduleMonth(t);
+                    if (y == null && m == null) return false;
+                    if (year !== 'all') {
+                        const yKey = y == null ? 'unknown' : String(y);
+                        if (yKey !== year) return false;
+                    }
+                    if (month !== 'all') {
+                        if (m == null || String(m) !== month) return false;
+                    }
                 }
-                if (archiveFilterCategory !== 'all') {
-                    if (getTaskArchiveCategoryKey(t) !== archiveFilterCategory) return false;
+                if (category !== 'all') {
+                    if (getTaskArchiveCategoryKey(t) !== category) return false;
                 }
                 return true;
             });
         }
 
-        function collectArchiveFilterOptions(list) {
+        function collectFilterYears(list) {
             const years = new Set();
-            const cats = new Set();
             list.forEach(t => {
-                const y = getTaskArchiveYear(t);
+                const y = getTaskScheduleYear(t);
                 years.add(y == null ? 'unknown' : String(y));
-                cats.add(getTaskArchiveCategoryKey(t));
             });
-            const yearList = [...years].sort((a, b) => {
+            return [...years].sort((a, b) => {
                 if (a === 'unknown') return 1;
                 if (b === 'unknown') return -1;
                 return parseInt(b, 10) - parseInt(a, 10);
             });
-            const catList = [...cats].sort((a, b) =>
-                getTaskArchiveCategoryLabel(a).localeCompare(getTaskArchiveCategoryLabel(b), 'ko')
-            );
-            return { yearList, catList };
         }
 
-        function syncArchiveToolbar(allArchived, filteredCount) {
-            const toolbar = document.getElementById('archive-toolbar');
-            const yearSel = document.getElementById('archive-filter-year');
-            const catSel = document.getElementById('archive-filter-category');
-            const groupSel = document.getElementById('archive-group-by');
-            const countEl = document.getElementById('archive-count');
-            if (!toolbar || !yearSel || !catSel || !groupSel) return;
+        function collectFilterCategories(list) {
+            const cats = new Set();
+            list.forEach(t => cats.add(getTaskArchiveCategoryKey(t)));
+            return [...cats].sort((a, b) =>
+                getTaskArchiveCategoryLabel(a).localeCompare(getTaskArchiveCategoryLabel(b), 'ko')
+            );
+        }
 
-            toolbar.classList.add('is-visible');
-            const { yearList, catList } = collectArchiveFilterOptions(allArchived);
+        function isYearMonthCategoryFilterActive(year, month, category) {
+            return category !== 'all' || year !== 'all' || month !== 'all';
+        }
 
-            if (archiveFilterYear !== 'all' && !yearList.includes(String(archiveFilterYear))) {
-                archiveFilterYear = 'all';
-                appStorage.setItem('notion_app_archive_filter_year', 'all');
-            }
-            if (archiveFilterCategory !== 'all' && !catList.includes(archiveFilterCategory)) {
-                archiveFilterCategory = 'all';
-                appStorage.setItem('notion_app_archive_filter_category', 'all');
-            }
+        function populateYearMonthFilterSelects(baseList, yearSel, monthSel, countEl, year, month, filteredCount) {
+            if (!yearSel || !monthSel) return;
+
+            const yearList = collectFilterYears(baseList);
+            yearSel.innerHTML = `<option value="all">전체</option>` + yearList.map(y =>
+                `<option value="${escapeHtml(y)}">${y === 'unknown' ? '날짜 없음' : `${y}년`}</option>`
+            ).join('');
+            yearSel.value = year;
+            monthSel.value = month;
+            if (countEl) countEl.textContent = `${filteredCount}개`;
+        }
+
+        function populateFilterSelects(baseList, yearSel, monthSel, catSel, countEl, year, month, category, filteredCount) {
+            if (!yearSel || !monthSel || !catSel) return;
+
+            const yearList = collectFilterYears(baseList);
+            const catList = collectFilterCategories(baseList);
 
             yearSel.innerHTML = `<option value="all">전체</option>` + yearList.map(y =>
-                `<option value="${escapeHtml(y)}">${y === 'unknown' ? '연도 미상' : `${y}년`}</option>`
+                `<option value="${escapeHtml(y)}">${y === 'unknown' ? '날짜 없음' : `${y}년`}</option>`
             ).join('');
-            yearSel.value = archiveFilterYear;
+            yearSel.value = year;
+            monthSel.value = month;
 
             catSel.innerHTML = `<option value="all">전체</option>` + catList.map(c =>
                 `<option value="${escapeHtml(c)}">${escapeHtml(getTaskArchiveCategoryLabel(c))}</option>`
             ).join('');
-            catSel.value = archiveFilterCategory;
-
-            groupSel.value = archiveGroupBy;
+            catSel.value = category;
             if (countEl) countEl.textContent = `${filteredCount}개`;
         }
 
-        function hideArchiveToolbar() {
-            document.getElementById('archive-toolbar')?.classList.remove('is-visible');
+        function applyArchiveFilters(list) {
+            return applyYearMonthCategoryFilters(list, archiveFilterYear, archiveFilterMonth, archiveFilterCategory);
+        }
+
+        function applyInboxFilters(list) {
+            return applyYearMonthCategoryFilters(list, inboxFilterYear, inboxFilterMonth, inboxFilterCategory);
+        }
+
+        function resetArchiveFilters(andRender = false) {
+            archiveFilterCategory = 'all';
+            archiveFilterYear = 'all';
+            archiveFilterMonth = 'all';
+            if (andRender && currentTab === 'archive') renderApp();
+        }
+
+        function updateArchiveFilterBarUI() {
+            const bar = document.getElementById('archive-filter-bar');
+            if (!bar) return;
+            bar.style.display = currentTab === 'archive' ? 'block' : 'none';
+        }
+
+        function syncArchiveToolbar(allArchived, filteredCount) {
+            if (archiveFilterYear !== 'all') {
+                const yearList = collectFilterYears(allArchived);
+                if (!yearList.includes(archiveFilterYear)) archiveFilterYear = 'all';
+            }
+            if (archiveFilterCategory !== 'all') {
+                const catList = collectFilterCategories(allArchived);
+                if (!catList.includes(archiveFilterCategory)) archiveFilterCategory = 'all';
+            }
+            populateFilterSelects(
+                allArchived,
+                document.getElementById('archive-filter-year'),
+                document.getElementById('archive-filter-month'),
+                document.getElementById('archive-filter-category'),
+                document.getElementById('archive-count'),
+                archiveFilterYear,
+                archiveFilterMonth,
+                archiveFilterCategory,
+                filteredCount
+            );
+            updateArchiveFilterBarUI();
+        }
+
+        function hideArchiveFilterBar() {
+            document.getElementById('archive-filter-bar').style.display = 'none';
+        }
+
+        function getTaskScheduleYear(task) {
+            const ymd = task?.dateStart || '';
+            if (/^\d{4}/.test(ymd)) return parseInt(ymd.slice(0, 4), 10);
+            return null;
+        }
+
+        function getTaskScheduleMonth(task) {
+            const ymd = task?.dateStart || '';
+            if (/^\d{4}-\d{2}/.test(ymd)) return parseInt(ymd.slice(5, 7), 10);
+            return null;
+        }
+
+        /** 관리함: 체크된 카테고리 + 관리함(미분류) 항목 */
+        function isVisibleInHub(task) {
+            if (!task || isTodayPlanTask(task)) return false;
+            const key = getTaskArchiveCategoryKey(task);
+            if (key !== 'inbox' && !hubCategoryKeys.has(key)) return false;
+            if (!task.completed) return true;
+            return isRecentlyCompleted(task);
+        }
+
+        function resetInboxFilters(andRender = false) {
+            inboxFilterYear = 'all';
+            inboxFilterMonth = 'all';
+            inboxFilterCategory = 'all';
+            if (andRender && currentTab === 'inbox') renderApp();
+        }
+
+        function resetTabFiltersForEnter(tab) {
+            if (tab === 'inbox') resetInboxFilters(false);
+            if (tab === 'archive') resetArchiveFilters(false);
+        }
+
+        function toggleInboxFilterPanel() {
+            inboxFilterPanelOpen = !inboxFilterPanelOpen;
+            updateInboxFilterBarUI();
+        }
+
+        function updateInboxFilterBarUI() {
+            const bar = document.getElementById('inbox-filter-bar');
+            const panel = document.getElementById('inbox-toolbar');
+            const toggleBtn = document.getElementById('btn-inbox-filter-toggle');
+            const badge = document.getElementById('inbox-filter-badge');
+            if (!bar || !panel) return;
+
+            const onInbox = currentTab === 'inbox';
+            bar.style.display = onInbox ? 'block' : 'none';
+            panel.classList.toggle('is-open', onInbox && inboxFilterPanelOpen);
+            if (toggleBtn) {
+                toggleBtn.classList.toggle('is-active', inboxFilterPanelOpen);
+                toggleBtn.setAttribute('aria-expanded', inboxFilterPanelOpen ? 'true' : 'false');
+            }
+            if (badge) {
+                badge.style.display = onInbox && isYearMonthCategoryFilterActive(inboxFilterYear, inboxFilterMonth, inboxFilterCategory) ? 'inline' : 'none';
+            }
+        }
+
+        function syncInboxToolbar(hubBase, filteredCount) {
+            if (inboxFilterYear !== 'all') {
+                const yearList = collectFilterYears(hubBase);
+                if (!yearList.includes(inboxFilterYear)) inboxFilterYear = 'all';
+            }
+            if (inboxFilterCategory !== 'all') {
+                const catList = collectFilterCategories(hubBase);
+                if (!catList.includes(inboxFilterCategory)) inboxFilterCategory = 'all';
+            }
+            populateFilterSelects(
+                hubBase,
+                document.getElementById('inbox-filter-year'),
+                document.getElementById('inbox-filter-month'),
+                document.getElementById('inbox-filter-category'),
+                document.getElementById('inbox-count'),
+                inboxFilterYear,
+                inboxFilterMonth,
+                inboxFilterCategory,
+                filteredCount
+            );
+            updateInboxFilterBarUI();
+        }
+
+        function hideInboxFilterBar() {
+            inboxFilterPanelOpen = false;
+            document.getElementById('inbox-filter-bar').style.display = 'none';
+            document.getElementById('inbox-toolbar')?.classList.remove('is-open');
+            document.getElementById('btn-inbox-filter-toggle')?.classList.remove('is-active');
         }
 
         function matchesInboxOrCategoryContext(task, tab) {
@@ -3890,6 +5254,86 @@
             });
         }
 
+        function prefersReducedMotion() {
+            return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
+
+        function dmContentFade(el) {
+            if (!el || prefersReducedMotion()) return;
+            el.classList.remove('dm-snap-fade');
+            void el.offsetWidth;
+            el.classList.add('dm-snap-fade');
+            el.addEventListener('animationend', () => el.classList.remove('dm-snap-fade'), { once: true });
+        }
+
+        function dmViewEnter(el) {
+            if (!el || prefersReducedMotion()) return;
+            el.classList.remove('dm-view-enter');
+            void el.offsetWidth;
+            el.classList.add('dm-view-enter');
+            el.addEventListener('animationend', () => el.classList.remove('dm-view-enter'), { once: true });
+        }
+
+        function dmIsFloatingVisible(el) {
+            return el && el.style.display !== 'none' && el.style.display !== '';
+        }
+
+        function dmSetFloating(el, open, displayMode = 'flex') {
+            if (!el) return;
+            if (open) {
+                el.style.display = displayMode;
+                if (prefersReducedMotion()) {
+                    el.classList.add('dm-open');
+                    return;
+                }
+                el.classList.remove('dm-open');
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => el.classList.add('dm-open'));
+                });
+                return;
+            }
+            if (prefersReducedMotion() || !el.classList.contains('dm-open')) {
+                el.classList.remove('dm-open');
+                el.style.display = 'none';
+                return;
+            }
+            el.classList.remove('dm-open');
+            const done = () => {
+                el.style.display = 'none';
+            };
+            const onEnd = (e) => {
+                if (e.target !== el || e.propertyName !== 'opacity') return;
+                el.removeEventListener('transitionend', onEnd);
+                done();
+            };
+            el.addEventListener('transitionend', onEnd);
+            setTimeout(() => {
+                if (el.style.display !== 'none' && !el.classList.contains('dm-open')) done();
+            }, 320);
+        }
+
+        function dmOpenOverlay(el) {
+            dmSetFloating(el, true, 'flex');
+        }
+
+        function dmCloseOverlay(el) {
+            dmSetFloating(el, false, 'flex');
+        }
+
+        function dmAnimatePageView(tabChanged) {
+            if (!tabChanged) return;
+            let viewEl = document.getElementById('task-list-view');
+            if (currentTab === 'calendar') viewEl = document.getElementById('calendar-view');
+            else if (currentTab === 'anniversary') viewEl = document.getElementById('anniversary-view');
+            dmViewEnter(viewEl);
+            dmSuppressContentFade = false;
+        }
+
+        function finishListRender(container) {
+            if (dmSuppressContentFade) return;
+            dmContentFade(container);
+        }
+
         function getAllTodayPlanTasks() {
             return tasks.filter(t => isTodayPlanTask(t));
         }
@@ -3930,9 +5374,11 @@
             if (!window.electronAPI?.isDesktop) return;
             const menuBtn = document.getElementById('today-menu-desktop');
             if (menuBtn) menuBtn.style.display = '';
+            const accountBtn = document.getElementById('aside-account-btn');
+            if (accountBtn) accountBtn.style.display = 'flex';
             document.title = 'Daymark';
-            updateGoogleSyncUI();
-            window.electronAPI.onAuthStateChanged(() => updateGoogleSyncUI());
+            updateAccountUI();
+            window.electronAPI.onAuthStateChanged(() => updateAccountUI());
         }
 
         function formatSyncTime(iso) {
@@ -3945,9 +5391,24 @@
             }
         }
 
-        async function updateGoogleSyncUI() {
+        async function updateAccountUI() {
             if (!window.electronAPI?.getAuthState) return;
             const state = await window.electronAPI.getAuthState();
+
+            const asideEmail = document.getElementById('aside-account-email');
+            const asideBtn = document.getElementById('aside-account-btn');
+            if (asideEmail && asideBtn) {
+                if (state.isAuthenticated && state.email) {
+                    asideEmail.textContent = state.email;
+                    asideBtn.disabled = false;
+                    asideBtn.title = `${state.email} · 클릭하여 로그아웃`;
+                } else {
+                    asideEmail.textContent = '로그인되지 않음';
+                    asideBtn.disabled = true;
+                    asideBtn.title = '계정';
+                }
+            }
+
             const accountEl = document.getElementById('desktop-google-account');
             const statusEl = document.getElementById('desktop-sync-status');
             const autoLoginEl = document.getElementById('desktop-google-auto-login');
@@ -3974,6 +5435,12 @@
             }
         }
 
+        async function logoutFromApp() {
+            if (!window.electronAPI?.logout) return;
+            if (!confirm('로그아웃하시겠습니까? Google Drive 동기화가 중단됩니다.')) return;
+            await window.electronAPI.logout();
+        }
+
         async function openDesktopSettings() {
             if (!window.electronAPI?.getDesktopSettings) return;
             const s = window.electronAPI.getDesktopSettings();
@@ -3987,12 +5454,12 @@
                 const version = await window.electronAPI.getAppVersion();
                 document.getElementById('desktop-app-version').textContent = `현재 버전 v${version}`;
             }
-            await updateGoogleSyncUI();
-            document.getElementById('desktop-settings-modal').style.display = 'flex';
+            await updateAccountUI();
+            dmOpenOverlay(document.getElementById('desktop-settings-modal'));
         }
 
         function closeDesktopSettings() {
-            document.getElementById('desktop-settings-modal').style.display = 'none';
+            dmCloseOverlay(document.getElementById('desktop-settings-modal'));
         }
 
         function saveDesktopSettings() {
@@ -4017,6 +5484,53 @@
             appStorage.setItem('notion_app_categories', JSON.stringify(categories));
             appStorage.setItem('notion_app_theme', currentTheme);
             saveAnniversaryCategories();
+        }
+
+        const undoStack = [];
+        const UNDO_MAX = 80;
+        let isUndoing = false;
+
+        function snapshotAppState() {
+            return JSON.stringify({
+                tasks,
+                categories,
+                anniversaries,
+                anniversaryCategories,
+                hubCategoryKeys: [...hubCategoryKeys]
+            });
+        }
+
+        function pushUndoSnapshot() {
+            if (isUndoing) return;
+            undoStack.push(snapshotAppState());
+            if (undoStack.length > UNDO_MAX) undoStack.shift();
+        }
+
+        function saveWithUndo() {
+            pushUndoSnapshot();
+            saveData();
+        }
+
+        function performUndo() {
+            if (!undoStack.length) return;
+            isUndoing = true;
+            const raw = undoStack.pop();
+            try {
+                const s = JSON.parse(raw);
+                tasks = s.tasks || [];
+                categories = s.categories || [];
+                anniversaries = s.anniversaries || [];
+                anniversaryCategories = s.anniversaryCategories || anniversaryCategories;
+                hubCategoryKeys = new Set(Array.isArray(s.hubCategoryKeys) ? s.hubCategoryKeys : []);
+                syncHubCategoryKeysWithCategories();
+                saveHubCategoryKeys();
+                saveData();
+                renderCategories();
+                renderApp();
+                if (currentTab === 'anniversary') renderAnniversaryView();
+                if (currentTab === 'calendar') renderCalendar();
+            } catch (_) { /* ignore corrupt snapshot */ }
+            isUndoing = false;
         }
 
         function exportAppDataToFile() {
@@ -4147,23 +5661,25 @@
 
         function updateDateTriggerLabel() {
             const labelEl = document.getElementById('date-trigger-label');
-            const recMap = { daily: '매일', weekly: '매주', monthly: '매월', yearly: '매년' };
+            const recMap = { daily: '매일', weekly: '매주', monthly: '매월', yearly: '매년', dates: '여러 날짜' };
 
-            if (!tempDateConfig.start) {
+            if (!tempDateConfig.start && !(tempDateConfig.recurrence === 'dates' && tempDateConfig.recurrenceDates?.length)) {
                 labelEl.textContent = '날짜 없음';
                 return;
             }
 
-            let text = formatKoreanDateShort(tempDateConfig.start);
-            if (tempDateConfig.start === getTodayString()) text = '오늘';
+            let text = tempDateConfig.recurrence === 'dates' && tempDateConfig.recurrenceDates?.length
+                ? formatDatesCommaList(tempDateConfig.recurrenceDates)
+                : (tempDateConfig.start ? formatKoreanDateShort(tempDateConfig.start) : '날짜 없음');
+            if (tempDateConfig.start && tempDateConfig.start === getTodayString() && tempDateConfig.recurrence !== 'dates') text = '오늘';
 
-            if (tempDateConfig.end) {
+            if (tempDateConfig.end && tempDateConfig.recurrence !== 'dates') {
                 text += ` ~ ${formatKoreanDateShort(tempDateConfig.end).replace(/^\d+년 /, '')}`;
             }
-            if (tempDateConfig.recurrence !== 'none') {
-                text += ` (${recMap[tempDateConfig.recurrence]})`;
+            if (tempDateConfig.recurrence !== 'none' && tempDateConfig.recurrence !== 'dates') {
+                text += ` (${recMap[tempDateConfig.recurrence] || tempDateConfig.recurrence})`;
             }
-            if (showLunarDates && tempDateConfig.start) {
+            if (showLunarDates && tempDateConfig.start && tempDateConfig.recurrence !== 'dates') {
                 const lunar = formatLunarFromSolar(tempDateConfig.start);
                 if (lunar) text += ` · ${lunar}`;
             }
@@ -4171,6 +5687,9 @@
         }
 
         function isTaskOnDate(task, targetDateStr) {
+            if (task.recurrence === 'dates' && Array.isArray(task.recurrenceDates) && task.recurrenceDates.length) {
+                return task.recurrenceDates.includes(targetDateStr);
+            }
             if (!task.dateStart) return false;
             
             if (!task.recurrence || task.recurrence === 'none') {
@@ -4954,6 +6473,7 @@
                     ? `"${escapeHtml(catLabel)}" 분류에서 검색 결과가 없습니다.`
                     : `"${escapeHtml(catLabel)}" 분류에 등록된 기념일이 없습니다.`;
                 body.innerHTML = `<div class="empty-msg">${emptyText}</div>`;
+                finishListRender(body);
                 return;
             }
 
@@ -4961,16 +6481,22 @@
                 `<div class="table-row grid-layout anniversary-grid-layout" data-ann-id="${ann.id}">${buildAnniversaryRowHtml(ann)}</div>`
             ).join('');
 
+            document.querySelectorAll('.ann-row-date-popover').forEach(el => el.remove());
+            Object.keys(rangeDatePickers).forEach(key => {
+                if (key.endsWith('-picker')) delete rangeDatePickers[key];
+            });
+
             list.forEach(ann => {
                 const hiddenId = `ann-row-date-${ann.id}`;
                 const mountId = `ann-row-date-${ann.id}-mount`;
-                initCustomDatePicker(hiddenId, mountId, null, {
+                initAnniversarySingleDatePicker(mountId, hiddenId, null, {
                     placeholder: '날짜 변경',
                     anniversaryId: ann.id
                 });
             });
 
             setupAnniversaryRowDragDrop(body);
+            finishListRender(body);
         }
 
         function addAnniversary(title, dateStart, recurrence, type, showDday, ddayIncludeDay, ddayMode, desc, lunarMeta) {
@@ -5073,13 +6599,14 @@
             document.getElementById('input-category').value = getDefaultInputCategory();
 
             if (currentTab === 'today') {
-                tempDateConfig = { start: getTodayString(), end: '', recurrence: 'none' };
+                tempDateConfig = { start: getTodayString(), end: '', recurrence: 'none', recurrenceDates: [] };
             } else {
-                tempDateConfig = { start: '', end: '', recurrence: 'none' };
+                tempDateConfig = { start: '', end: '', recurrence: 'none', recurrenceDates: [] };
             }
-            setCustomDateValue('pop-date-start', tempDateConfig.start);
-            setCustomDateValue('pop-date-end', '');
+            setRangeDateValues('pop-date-start', 'pop-date-end', tempDateConfig.start, tempDateConfig.end);
+            setMultiDateValues('pop-recurrence-dates', []);
             document.getElementById('pop-recurrence').value = 'none';
+            syncRecurrenceDatesRow('pop');
             updateDateTriggerLabel();
             updateInputPlaceholder();
             editingTaskId = null;
@@ -5144,16 +6671,19 @@
         }
 
         function renderCategories() {
+            syncHubCategoryKeysWithCategories();
             const catNav = document.getElementById('category-nav');
             const catSelect = document.getElementById('input-category');
             
             catNav.innerHTML = '';
-            catSelect.innerHTML = `<option value="${TODAY_PLAN_ID}">${TODAY_PLAN_LABEL}</option><option value="inbox">관리함</option>`;
+            catSelect.innerHTML = '<option value="inbox">관리함</option>';
 
             categories.forEach((cat, index) => {
+                const included = hubCategoryKeys.has(cat.name);
                 const li = document.createElement('li');
-                li.className = `nav-item ${currentTab === 'cat-' + cat.name ? 'active' : ''}`;
+                li.className = `nav-item ${currentTab === 'cat-' + cat.name ? 'active' : ''} ${included ? 'hub-included' : 'hub-excluded'}`;
                 li.dataset.tab = `cat-${cat.name}`;
+                li.dataset.catKey = cat.name;
                 li.dataset.idx = index;
                 
                 li.draggable = true;
@@ -5165,12 +6695,17 @@
 
                 li.innerHTML = `
                     <div class="nav-item-left">
-                        <span class="cat-dot" style="background-color: ${cat.color};"></span>
+                        <span class="cat-dot" style="background-color:${cat.color};"></span>
                         <span class="nav-item-label">${escapeHtml(cat.name)}</span>
                     </div>
-                    <button type="button" class="btn-cat-more" data-cat-name="${escapeHtml(cat.name)}">
-                        <span class="material-symbols-outlined">more_vert</span>
-                    </button>
+                    <div class="nav-item-right">
+                        <button type="button" class="hub-cat-check" data-cat-key="${escapeHtml(cat.name)}" title="관리함에 표시">
+                            <span class="material-symbols-outlined">check</span>
+                        </button>
+                        <button type="button" class="btn-cat-more" data-cat-name="${escapeHtml(cat.name)}">
+                            <span class="material-symbols-outlined">more_vert</span>
+                        </button>
+                    </div>
                 `;
                 catNav.appendChild(li);
 
@@ -5182,6 +6717,10 @@
         }
 
         function renderApp() {
+            const tabChanged = lastRenderedTab !== currentTab;
+            lastRenderedTab = currentTab;
+            if (tabChanged) dmSuppressContentFade = true;
+
             const titleEl = document.getElementById('page-title');
             const iconEl = document.getElementById('page-icon');
             const breadcrumbEl = document.getElementById('breadcrumb-current');
@@ -5197,7 +6736,14 @@
             calView.style.display = 'none';
             annView.style.display = 'none';
             document.body.classList.remove('today-mode');
-            if (currentTab !== 'archive') hideArchiveToolbar();
+            if (currentTab !== 'archive') hideArchiveFilterBar();
+            if (currentTab !== 'inbox') {
+                hideInboxFilterBar();
+                document.getElementById('default-task-table')?.classList.remove('hub-mode');
+            }
+            const taskTable = document.getElementById('default-task-table');
+            const hideTaskDragCol = currentTab === 'inbox' || currentTab.startsWith('cat-') || currentTab === 'archive';
+            taskTable?.classList.toggle('no-drag-col', hideTaskDragCol);
 
             let filtered = tasks;
             let groupRecentlyCompleted = false;
@@ -5211,6 +6757,7 @@
                 document.getElementById('today-search-panel').classList.toggle('active', todaySearchActive);
                 renderTodayView();
                 syncNavActive();
+                dmAnimatePageView(tabChanged);
                 return;
             }
 
@@ -5221,7 +6768,11 @@
                 iconEl.textContent = 'inbox';
                 titleEl.textContent = '관리함';
                 breadcrumbEl.textContent = '관리함';
-                filtered = tasks.filter(t => isVisibleInSourceList(t, 'inbox'));
+                document.getElementById('input-category').value = getDefaultInputCategory();
+                document.getElementById('default-task-table')?.classList.add('hub-mode');
+                const hubBase = tasks.filter(t => isVisibleInHub(t));
+                filtered = applyInboxFilters(hubBase);
+                syncInboxToolbar(hubBase, filtered.length);
                 groupRecentlyCompleted = true;
             }
             else if (currentTab === 'anniversary') {
@@ -5234,15 +6785,9 @@
                 renderAnnCategories();
                 renderAnniversaryView();
                 syncNavActive();
+                dmAnimatePageView(tabChanged);
                 return;
             }
-            else if (currentTab === 'completed') {
-                iconEl.textContent = 'check_circle';
-                titleEl.textContent = '완료된 항목';
-                breadcrumbEl.textContent = '완료된 항목';
-                inputArea.style.display = 'none';
-                filtered = tasks.filter(t => isInCompletedList(t));
-            } 
             else if (currentTab === 'archive') {
                 iconEl.textContent = 'archive';
                 titleEl.textContent = '아카이브';
@@ -5261,6 +6806,7 @@
                 calView.style.display = 'flex';
                 renderCalendar();
                 syncNavActive();
+                dmAnimatePageView(tabChanged);
                 return;
             } 
             else if (currentTab.startsWith('cat-')) {
@@ -5283,14 +6829,20 @@
                     const countEl = document.getElementById('archive-count');
                     if (countEl) countEl.textContent = `${filtered.length}개`;
                 }
+                if (currentTab === 'inbox') {
+                    const countEl = document.getElementById('inbox-count');
+                    if (countEl) countEl.textContent = `${filtered.length}개`;
+                }
             }
 
             renderTaskList(filtered, {
                 groupRecentlyCompleted,
-                archiveGroups: currentTab === 'archive' ? archiveGroupBy : null
+                archiveGroups: null,
+                disableDrag: true
             });
             updateTaskListSortHeaderUI();
             syncNavActive();
+            dmAnimatePageView(tabChanged);
         }
 
         window.updateTaskInline = function(id, field, value) {
@@ -5315,27 +6867,30 @@
                 }
                 
                 if (changed) {
-                    saveData();
+                    saveWithUndo();
                     if (field === 'category') renderApp();
                 }
             }
         };
 
-        function buildTaskRowHtml(task, lightMode) {
-            const recMap = { daily: '매일', weekly: '매주', monthly: '매월', yearly: '매년' };
+        function buildTaskRowHtml(task, lightMode, hideDrag = false) {
+            const recMap = { daily: '매일', weekly: '매주', monthly: '매월', yearly: '매년', dates: '여러 날짜' };
             const catObj = getCategoryObj(task);
             const isInbox = (task.category === 'inbox' || !task.category) && !isTodayPlanTask(task);
 
-            let dateLabel = task.dateStart ? formatKoreanDateShort(task.dateStart) : '-';
-            if (task.dateEnd && task.dateStart !== task.dateEnd) {
-                dateLabel += ` ~ ${formatKoreanDateShort(task.dateEnd).replace(/^\d+년 /, '')}`;
+            let dateLabelText = task.dateStart ? formatKoreanDateShort(task.dateStart) : '-';
+            if (task.recurrence === 'dates' && Array.isArray(task.recurrenceDates) && task.recurrenceDates.length) {
+                dateLabelText = formatDatesCommaList(task.recurrenceDates);
+            } else if (task.dateEnd && task.dateStart !== task.dateEnd) {
+                dateLabelText += ` ~ ${formatKoreanDateShort(task.dateEnd).replace(/^\d+년 /, '')}`;
             }
-            if (task.recurrence && task.recurrence !== 'none') {
-                dateLabel += ` (${recMap[task.recurrence]})`;
+            if (task.recurrence && task.recurrence !== 'none' && task.recurrence !== 'dates') {
+                dateLabelText += ` (${recMap[task.recurrence] || task.recurrence})`;
             }
+            let dateLabelHtml = escapeHtml(dateLabelText);
             if (showLunarDates && task.dateStart) {
                 const lunar = formatLunarFromSolar(task.dateStart);
-                if (lunar) dateLabel += `<div class="date-sub-hint">${lunar}</div>`;
+                if (lunar) dateLabelHtml += `<div class="date-sub-hint">${escapeHtml(lunar)}</div>`;
             }
 
             const catOptions = `
@@ -5352,7 +6907,7 @@
                         </select>
                     </div>
                     <div class="col-date">
-                        <span class="date-text editable-date" onclick="openInlineDatePopover(event, ${task.id})" title="클릭하여 상세 날짜/반복 설정">${escapeHtml(dateLabel)}</span>
+                        <span class="date-text editable-date" onclick="openInlineDatePopover(event, ${task.id})" title="클릭하여 상세 날짜/반복 설정">${dateLabelHtml}</span>
                     </div>`;
 
             return `
@@ -5364,6 +6919,7 @@
                         <span class="editable-text" contenteditable="true" 
                               onblur="updateTaskInline(${task.id}, 'title', this.innerText)"
                               onkeydown="if(event.key==='Enter'){this.blur(); return false;}">${escapeHtml(task.title)}</span>
+                        ${currentTab === 'inbox' && !lightMode && !task.completed ? `<button type="button" class="hub-priority-bang${task.hubPriority ? ' is-active' : ''}" onclick="event.stopPropagation(); toggleHubPriority(${task.id})" title="우선">!</button>` : ''}
                     </span>
                 </div>
                 ${categoryCol}
@@ -5376,11 +6932,11 @@
                 <div class="col-action">
                     <button class="btn-delete" onclick="deleteTask(${task.id})" title="삭제"><span class="material-symbols-outlined">close</span></button>
                 </div>
-                <div class="col-drag">
+                ${hideDrag ? '' : `<div class="col-drag">
                     <button type="button" class="task-drag-handle" draggable="true" data-task-id="${task.id}" title="순서 변경">
                         <span class="material-symbols-outlined">drag_indicator</span>
                     </button>
-                </div>
+                </div>`}
             `;
         }
 
@@ -5389,9 +6945,26 @@
             return [...list].sort((a, b) => {
                 if (a.completed !== b.completed) return a.completed ? 1 : -1;
 
+                if (currentTab === 'inbox' && taskListSortKey === 'date') {
+                    const aInbox = isInboxCategoryTask(a);
+                    const bInbox = isInboxCategoryTask(b);
+                    if (aInbox !== bInbox) return aInbox ? -1 : 1;
+                }
+
+                if (taskListSortKey !== 'manual') {
+                    const multiA = isMultiDateTask(a);
+                    const multiB = isMultiDateTask(b);
+                    if (multiA !== multiB) return multiA ? 1 : -1;
+                }
+
                 if (taskListSortKey === 'title') {
                     const c = compareTaskTitle(a, b);
                     if (c !== 0) return c * dir;
+                } else if (taskListSortKey === 'category') {
+                    const c = compareTaskCategory(a, b);
+                    if (c !== 0) return c * dir;
+                    const byTitle = compareTaskTitle(a, b);
+                    if (byTitle !== 0) return byTitle;
                 } else if (taskListSortKey === 'date') {
                     const c = compareTaskStartDate(a, b, dir);
                     if (c !== 0) return c;
@@ -5455,6 +7028,7 @@
 
                     ids.splice(fromIdx, 1);
                     ids.splice(toIdx, 0, draggedTaskId);
+                    saveWithUndo();
                     applyTaskOrder(ids);
                     taskListSortKey = 'manual';
                     updateTaskListSortHeaderUI();
@@ -5471,12 +7045,14 @@
         function renderTodayPlanRows(container, allTasks, emptyMsg) {
             if (allTasks.length === 0) {
                 container.innerHTML = `<div class="empty-msg">${emptyMsg || '계획이 비어 있습니다.'}</div>`;
+                finishListRender(container);
                 return;
             }
             container.innerHTML = sortTasksForDisplay(allTasks).map(task =>
                 `<div class="table-row grid-layout today-plan-header ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">${buildTaskRowHtml(task, true)}</div>`
             ).join('');
             setupTaskRowDragDrop(container);
+            finishListRender(container);
         }
 
         function getTodayScheduleSectionTitle(dateStr) {
@@ -5532,6 +7108,7 @@
             const q = (query || '').trim().toLowerCase();
             if (!q) {
                 container.innerHTML = '<div class="empty-msg" style="padding:12px;">검색어를 입력하세요.</div>';
+                finishListRender(container);
                 return;
             }
             const results = getAllTodayPlanTasks()
@@ -5540,6 +7117,7 @@
 
             if (results.length === 0) {
                 container.innerHTML = '<div class="empty-msg" style="padding:12px;">검색 결과가 없습니다.</div>';
+                finishListRender(container);
                 return;
             }
 
@@ -5555,6 +7133,7 @@
                     </div>
                 </div>
             `).join('');
+            finishListRender(container);
         }
 
         function renderTodayHistoryCalendar() {
@@ -5628,11 +7207,11 @@
             if (todayHistorySelectedDate) {
                 renderTodayHistoryList(todayHistorySelectedDate);
             }
-            document.getElementById('today-history-modal').style.display = 'flex';
+            dmOpenOverlay(document.getElementById('today-history-modal'));
         };
 
         window.closeTodayHistory = function() {
-            document.getElementById('today-history-modal').style.display = 'none';
+            dmCloseOverlay(document.getElementById('today-history-modal'));
         };
 
         function buildPlanResetHourOptions() {
@@ -5646,29 +7225,14 @@
             });
         }
 
-        window.openAppSettings = function() {
-            document.getElementById('completed-hold-days').value = String(getCompletedHoldDays());
-            document.getElementById('app-settings-modal').style.display = 'flex';
-        };
-
-        window.closeAppSettings = function() {
-            document.getElementById('app-settings-modal').style.display = 'none';
-        };
-
-        window.saveAppSettings = function() {
-            setCompletedHoldDays(document.getElementById('completed-hold-days').value);
-            closeAppSettings();
-            renderApp();
-        };
-
         window.openTodayResetSettings = function() {
             buildPlanResetHourOptions();
             document.getElementById('plan-reset-hour').value = String(getPlanResetHour());
-            document.getElementById('today-reset-modal').style.display = 'flex';
+            dmOpenOverlay(document.getElementById('today-reset-modal'));
         };
 
         window.closeTodayResetSettings = function() {
-            document.getElementById('today-reset-modal').style.display = 'none';
+            dmCloseOverlay(document.getElementById('today-reset-modal'));
         };
 
         window.saveTodayResetSettings = function() {
@@ -5687,20 +7251,22 @@
             document.getElementById('today-search-results').innerHTML = '';
         }
 
-        function renderTaskRows(container, list, emptyMsg) {
+        function renderTaskRows(container, list, emptyMsg, hideDrag = false) {
             container.innerHTML = '';
             if (list.length === 0) {
                 container.innerHTML = `<div class="empty-msg">${emptyMsg || '기록된 업무가 없습니다.'}</div>`;
+                finishListRender(container);
                 return;
             }
             list.forEach(task => {
                 const row = document.createElement('div');
                 row.className = `table-row grid-layout ${task.completed ? 'completed' : ''}`;
                 row.dataset.taskId = task.id;
-                row.innerHTML = buildTaskRowHtml(task, false);
+                row.innerHTML = buildTaskRowHtml(task, false, hideDrag);
                 container.appendChild(row);
             });
-            setupTaskRowDragDrop(container);
+            if (!hideDrag) setupTaskRowDragDrop(container);
+            finishListRender(container);
         }
 
         function appendTaskSectionDivider(container, label) {
@@ -5710,40 +7276,75 @@
             container.appendChild(div);
         }
 
+        function appendHubListSeparator(container) {
+            const sep = document.createElement('div');
+            sep.className = 'hub-list-separator';
+            sep.setAttribute('aria-hidden', 'true');
+            container.appendChild(sep);
+        }
+
         function renderTaskList(list, options = {}) {
             const container = document.getElementById('task-list-body');
             container.innerHTML = '';
 
             if (!list || list.length === 0) {
                 container.innerHTML = `<div class="empty-msg">기록된 업무가 없습니다.</div>`;
+                finishListRender(container);
                 return;
             }
 
             if (options.groupRecentlyCompleted) {
+                const hideDrag = options.disableDrag === true;
+
+                const appendTaskRows = (taskList, completed = false) => {
+                    taskList.forEach(task => {
+                        const row = document.createElement('div');
+                        row.className = 'table-row grid-layout' + (completed ? ' completed' : '');
+                        row.dataset.taskId = task.id;
+                        row.innerHTML = buildTaskRowHtml(task, false, hideDrag);
+                        container.appendChild(row);
+                    });
+                };
+
+                if (currentTab === 'inbox') {
+                    const priorityActive = sortTasksForDisplay(list.filter(t => !t.completed && t.hubPriority));
+                    const normalActive = sortTasksForDisplay(list.filter(t => !t.completed && !t.hubPriority));
+                    const recent = sortTasksForDisplay(list.filter(t => t.completed));
+
+                    if (priorityActive.length === 0 && normalActive.length === 0 && recent.length === 0) {
+                        container.innerHTML = `<div class="empty-msg">기록된 업무가 없습니다.</div>`;
+                        finishListRender(container);
+                        return;
+                    }
+
+                    if (priorityActive.length > 0) {
+                        appendTaskRows(priorityActive);
+                        if (normalActive.length > 0) appendHubListSeparator(container);
+                    }
+                    appendTaskRows(normalActive);
+                    if (recent.length > 0) {
+                        appendTaskSectionDivider(container, '최근 완료');
+                        appendTaskRows(recent, true);
+                    }
+                    if (!hideDrag) setupTaskRowDragDrop(container);
+                    finishListRender(container);
+                    return;
+                }
+
                 const active = sortTasksForDisplay(list.filter(t => !t.completed));
                 const recent = sortTasksForDisplay(list.filter(t => t.completed));
                 if (active.length === 0 && recent.length === 0) {
                     container.innerHTML = `<div class="empty-msg">기록된 업무가 없습니다.</div>`;
+                    finishListRender(container);
                     return;
                 }
-                active.forEach(task => {
-                    const row = document.createElement('div');
-                    row.className = 'table-row grid-layout';
-                    row.dataset.taskId = task.id;
-                    row.innerHTML = buildTaskRowHtml(task, false);
-                    container.appendChild(row);
-                });
+                appendTaskRows(active);
                 if (recent.length > 0) {
                     appendTaskSectionDivider(container, '최근 완료');
-                    recent.forEach(task => {
-                        const row = document.createElement('div');
-                        row.className = 'table-row grid-layout completed';
-                        row.dataset.taskId = task.id;
-                        row.innerHTML = buildTaskRowHtml(task, false);
-                        container.appendChild(row);
-                    });
+                    appendTaskRows(recent, true);
                 }
-                setupTaskRowDragDrop(container);
+                if (!hideDrag) setupTaskRowDragDrop(container);
+                finishListRender(container);
                 return;
             }
 
@@ -5753,7 +7354,7 @@
             }
 
             const rows = options.archiveGroups === 'none' ? sortArchiveTasks(list) : sortTasksForDisplay(list);
-            renderTaskRows(container, rows);
+            renderTaskRows(container, rows, undefined, options.disableDrag === true);
         }
 
         function renderGroupedArchiveList(container, list, groupBy) {
@@ -5793,11 +7394,11 @@
                     const row = document.createElement('div');
                     row.className = 'table-row grid-layout completed';
                     row.dataset.taskId = task.id;
-                    row.innerHTML = buildTaskRowHtml(task, false);
+                    row.innerHTML = buildTaskRowHtml(task, false, true);
                     container.appendChild(row);
                 });
             });
-            setupTaskRowDragDrop(container);
+            finishListRender(container);
         }
 
         function escapeHtml(str) {
@@ -5844,6 +7445,10 @@
             }
             cell.innerHTML = html;
 
+            const itemsWrap = document.createElement('div');
+            itemsWrap.className = 'cal-cell-items';
+            cell.appendChild(itemsWrap);
+
             // 캘린더: 관리함·오늘 할 일 제외, 완료 항목은 채도만 낮춰 표시
             const dayTasks = tasks.filter(t => {
                 if (t.category === 'inbox' || !t.category) return false;
@@ -5859,16 +7464,34 @@
                 const catObj = getCategoryObj(t);
                 const item = document.createElement('div');
                 item.className = 'cal-item' + (t.completed ? ' cal-item-completed' : '');
-                item.textContent = t.title;
+                item.dataset.taskId = String(t.id);
+                item.title = '클릭하여 수정';
                 item.style.backgroundColor = `${catObj.color}20`;
                 item.style.color = catObj.color;
                 item.style.borderLeft = `3px solid ${catObj.color}`;
                 if (t.completed) {
                     item.style.opacity = '0.72';
                     item.style.filter = 'saturate(48%)';
-                    item.style.textDecoration = 'line-through';
                 }
-                cell.appendChild(item);
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'cal-item-title';
+                titleSpan.textContent = t.title;
+
+                const check = document.createElement('button');
+                check.type = 'button';
+                check.className = 'cal-item-check';
+                check.title = t.completed ? '완료 취소' : '완료';
+                check.innerHTML = '<span class="material-symbols-outlined">check</span>';
+                check.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.toggleTask(t.id);
+                });
+
+                item.appendChild(titleSpan);
+                item.appendChild(check);
+                itemsWrap.appendChild(item);
             });
 
             const dayAnns = anniversaries.filter(a => {
@@ -5899,7 +7522,7 @@
                 item.style.backgroundColor = 'var(--bg-main)';
                 item.style.color = 'var(--text-main)';
                 item.style.borderLeft = '3px solid var(--text-light)';
-                cell.appendChild(item);
+                itemsWrap.appendChild(item);
             });
 
             // data 속성으로 위임 클릭 처리 (이전·다음 달 이동 / 할 일 추가)
@@ -6057,6 +7680,12 @@
             const THRESHOLD = 56;
             const WHEEL_COOLDOWN_MS = 380;
 
+            const handleCalItemActivate = (itemEl) => {
+                if (!itemEl || !grid.contains(itemEl)) return;
+                const taskId = parseInt(itemEl.dataset.taskId, 10);
+                if (Number.isFinite(taskId)) openTaskModal(null, taskId);
+            };
+
             const handleCellActivate = (cell) => {
                 if (!cell || !grid.contains(cell) || calMonthAnimating) return;
                 if (cell.dataset.otherMonth === '1' || cell.classList.contains('is-other-month')) {
@@ -6073,7 +7702,7 @@
             grid.addEventListener('pointerdown', (e) => {
                 if (calMonthAnimating) return;
                 if (e.button !== undefined && e.button !== 0) return;
-                if (e.target.closest('.cal-item')) return;
+                if (e.target.closest('.cal-item[data-task-id]')) return;
                 active = true;
                 suppressNextClick = false;
                 startX = e.clientX;
@@ -6101,7 +7730,13 @@
                 // (Electron pointer capture 이후 click이 안 뜨는 경우 대비)
                 if (Math.abs(dx) < 12 && Math.abs(dy) < 12) {
                     const el = document.elementFromPoint(e.clientX, e.clientY);
-                    if (el && el.closest('.cal-item')) return;
+                    if (el && el.closest && el.closest('.cal-item-check')) return;
+                    const calItem = el && el.closest ? el.closest('.cal-item[data-task-id]') : null;
+                    if (calItem) {
+                        suppressNextClick = true;
+                        handleCalItemActivate(calItem);
+                        return;
+                    }
                     const cell = el && el.closest ? el.closest('.cal-cell') : null;
                     if (cell) {
                         suppressNextClick = true; // 뒤따르는 click 중복 방지
@@ -6125,7 +7760,14 @@
                     return;
                 }
                 if (calMonthAnimating) return;
-                if (e.target.closest('.cal-item')) return;
+                if (e.target.closest('.cal-item-check')) return;
+                const calItem = e.target.closest('.cal-item[data-task-id]');
+                if (calItem) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCalItemActivate(calItem);
+                    return;
+                }
                 const cell = e.target.closest('.cal-cell');
                 if (!cell) return;
                 handleCellActivate(cell);
@@ -6133,6 +7775,11 @@
 
             // 마우스 휠 / 트랙패드로 월 이동 (아래로 = 다음 달, 위로 = 이전 달)
             grid.addEventListener('wheel', (e) => {
+                const itemsEl = e.target.closest('.cal-cell-items');
+                if (itemsEl && itemsEl.scrollHeight > itemsEl.clientHeight + 1) {
+                    e.stopPropagation();
+                    return;
+                }
                 const primary = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
                 if (primary === 0) return;
                 e.preventDefault();
@@ -6149,6 +7796,10 @@
         let draggedCategoryIdx = null;
 
         function handleDragStart(e) {
+            if (e.target.closest('.hub-cat-check')) {
+                e.preventDefault();
+                return;
+            }
             draggedCategoryIdx = parseInt(e.currentTarget.dataset.idx);
             e.dataTransfer.effectAllowed = 'move';
             e.currentTarget.classList.add('dragging');
@@ -6203,9 +7854,9 @@
             });
 
             const pop = document.getElementById('cat-popover');
-            pop.style.display = 'flex';
             pop.style.top = e.clientY + 'px';
             pop.style.left = e.clientX + 'px';
+            dmSetFloating(pop, true);
         }
 
         function openNewCategoryPopover(e) {
@@ -6226,9 +7877,9 @@
             const btn = e.currentTarget;
             const rect = btn.getBoundingClientRect();
             const pop = document.getElementById('cat-popover');
-            pop.style.display = 'flex';
             pop.style.top = Math.min(rect.bottom + 5, window.innerHeight - 220) + 'px';
             pop.style.left = Math.min(rect.left, window.innerWidth - 240) + 'px';
+            dmSetFloating(pop, true);
 
             setTimeout(() => document.getElementById('cat-edit-name').focus(), 0);
         }
@@ -6244,9 +7895,6 @@
                 if (categories.some(c => c.name === newName)) {
                     return alert('이미 존재하는 카테고리입니다.');
                 }
-                categories.push({ name: newName, color: newColor });
-                currentTab = `cat-${newName}`;
-                resetTaskListSortToDate();
             } else {
                 if (!editingCategoryName) return;
                 const cat = categories.find(c => c.name === editingCategoryName);
@@ -6254,7 +7902,24 @@
                 if (editingCategoryName !== newName && categories.some(c => c.name === newName)) {
                     return alert('이미 존재하는 카테고리입니다.');
                 }
+            }
+
+            saveWithUndo();
+
+            if (isCreatingCategory) {
+                categories.push({ name: newName, color: newColor });
+                hubCategoryKeys.add(newName);
+                saveHubCategoryKeys();
+                currentTab = `cat-${newName}`;
+                resetTaskListSortToDate();
+            } else {
+                const cat = categories.find(c => c.name === editingCategoryName);
                 if (editingCategoryName !== newName) {
+                    if (hubCategoryKeys.has(editingCategoryName)) {
+                        hubCategoryKeys.delete(editingCategoryName);
+                        hubCategoryKeys.add(newName);
+                        saveHubCategoryKeys();
+                    }
                     tasks.forEach(t => { if (t.category === editingCategoryName) t.category = newName; });
                     if (currentTab === 'cat-' + editingCategoryName) {
                         currentTab = 'cat-' + newName;
@@ -6265,7 +7930,7 @@
                 cat.color = newColor;
             }
 
-            document.getElementById('cat-popover').style.display = 'none';
+            dmSetFloating(document.getElementById('cat-popover'), false);
             isCreatingCategory = false;
             editingCategoryName = null;
             saveData();
@@ -6276,6 +7941,7 @@
         function deleteCategoryEdit() {
             if (!editingCategoryName) return;
             if (confirm(`'${editingCategoryName}' 카테고리를 삭제하시겠습니까?`)) {
+                saveWithUndo();
                 categories = categories.filter(c => c.name !== editingCategoryName);
                 tasks.forEach(t => { if (t.category === editingCategoryName) t.category = 'inbox'; });
                 
@@ -6284,28 +7950,36 @@
                     resetTaskListSortToDate();
                 }
 
-                document.getElementById('cat-popover').style.display = 'none';
+                dmSetFloating(document.getElementById('cat-popover'), false);
                 saveData();
                 renderCategories();
                 renderApp();
             }
         }
 
-        function addTask(title, category, dateStart, dateEnd, recurrence, desc, planDate) {
+        function addTask(title, category, dateStart, dateEnd, recurrence, desc, planDate, recurrenceDates) {
             const isPlan = category === TODAY_PLAN_ID || category === TODAY_PLAN_LABEL;
+            const dates = recurrence === 'dates' ? (recurrenceDates || []).filter(Boolean).sort() : [];
+            const resolvedStart = recurrence === 'dates'
+                ? (dates[0] || dateStart || '')
+                : (isPlan ? (dateStart || getPlanDateString()) : (dateStart || ''));
+            const resolvedEnd = recurrence === 'dates' ? (dates[dates.length - 1] || '') : (dateEnd || '');
             const newTask = {
                 id: Date.now(),
                 title: title,
                 category: isPlan ? TODAY_PLAN_ID : (category || 'inbox'),
                 planDate: isPlan ? (planDate || getPlanDateString()) : null,
-                dateStart: isPlan ? (dateStart || getPlanDateString()) : (dateStart || ''),
-                dateEnd: dateEnd || '',
+                dateStart: resolvedStart,
+                dateEnd: resolvedEnd,
                 recurrence: recurrence || 'none',
+                recurrenceDates: recurrence === 'dates' ? dates : undefined,
                 desc: desc || '',
                 completed: false,
                 completedAt: null,
+                hubPriority: false,
                 sortOrder: tasks.reduce((max, t) => Math.max(max, t.sortOrder ?? 0), -1) + 1
             };
+            saveWithUndo();
             tasks.push(newTask);
             saveData();
             renderCategories();
@@ -6320,89 +7994,160 @@
             const task = tasks.find(t => t.id === id);
             if (!task) return;
             
-            setCustomDateValue('inline-pop-date-start', task.dateStart);
-            setCustomDateValue('inline-pop-date-end', task.dateEnd || '');
+            setRangeDateValues('inline-pop-date-start', 'inline-pop-date-end', task.dateStart, task.dateEnd || '');
+            setMultiDateValues('inline-pop-recurrence-dates', task.recurrenceDates || []);
             document.getElementById('inline-pop-recurrence').value = task.recurrence || 'none';
+            syncRecurrenceDatesRow('inline-pop');
             syncLunarToggleUI();
             updateLunarHint('inline-pop-lunar-hint', task.dateStart, task.dateEnd);
             
             const pop = document.getElementById('inline-date-popover');
-            pop.style.display = 'flex';
-            // 화면 밖으로 넘어가지 않도록 위치 보정
             pop.style.top = Math.min(e.clientY, window.innerHeight - 200) + 'px';
             pop.style.left = Math.min(e.clientX, window.innerWidth - 250) + 'px';
+            rangeDatePickers['inline-pop-date-range-mount']?.renderGrid?.();
+            dmSetFloating(pop, true);
         };
 
         function syncInputDateFromPopover() {
             tempDateConfig.start = document.getElementById('pop-date-start').value;
             tempDateConfig.end = document.getElementById('pop-date-end').value;
             tempDateConfig.recurrence = document.getElementById('pop-recurrence').value;
+            tempDateConfig.recurrenceDates = parseRecurrenceDatesHidden('pop-recurrence-dates');
+            if (tempDateConfig.recurrence === 'dates') {
+                tempDateConfig.start = tempDateConfig.recurrenceDates[0] || '';
+                tempDateConfig.end = tempDateConfig.recurrenceDates[tempDateConfig.recurrenceDates.length - 1] || '';
+            }
             updateDateTriggerLabel();
             updateLunarHint('pop-lunar-hint', tempDateConfig.start, tempDateConfig.end);
+            syncRecurrenceDatesRow('pop');
         }
 
         function applyInlineDateChange() {
             if (!editingInlineDateId) return;
             const task = tasks.find(t => t.id === editingInlineDateId);
             if (!task) return;
+            saveWithUndo();
+            const recurrence = document.getElementById('inline-pop-recurrence').value;
+            const recurrenceDates = parseRecurrenceDatesHidden('inline-pop-recurrence-dates');
             task.dateStart = document.getElementById('inline-pop-date-start').value || '';
             task.dateEnd = document.getElementById('inline-pop-date-end').value;
-            task.recurrence = document.getElementById('inline-pop-recurrence').value;
+            task.recurrence = recurrence;
+            task.recurrenceDates = recurrence === 'dates' ? recurrenceDates : undefined;
+            if (recurrence === 'dates' && recurrenceDates.length) {
+                task.dateStart = recurrenceDates[0];
+                task.dateEnd = recurrenceDates[recurrenceDates.length - 1];
+            }
             saveData();
             renderApp();
             updateLunarHint('inline-pop-lunar-hint', task.dateStart, task.dateEnd);
         }
 
-        window.saveInlineDate = function() {
-            applyInlineDateChange();
-            document.getElementById('inline-date-popover').style.display = 'none';
-            editingInlineDateId = null;
-        };
+        let editingModalTaskId = null;
 
-        // 피드백: 캘린더용 추가 팝업창 제어
-        window.openTaskModal = function(dateStr) {
-            document.getElementById('modal-title').value = '';
-            document.getElementById('modal-desc').value = '';
-            setCustomDateValue('modal-date-start', dateStr);
-            setCustomDateValue('modal-date-end', '');
-            document.getElementById('modal-recurrence').value = 'none';
-            syncLunarToggleUI();
-            updateLunarHint('modal-lunar-hint', dateStr, '');
-            
+        window.openTaskModal = function(dateStr, taskId) {
+            editingModalTaskId = taskId || null;
+            const heading = document.getElementById('modal-title-heading');
+            const saveBtn = document.getElementById('btn-modal-save');
             const catSelect = document.getElementById('modal-category');
             catSelect.innerHTML = '<option value="inbox">관리함</option>';
             categories.forEach(c => {
                 catSelect.innerHTML += `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`;
             });
-            
-            document.getElementById('cal-task-modal').style.display = 'flex';
+
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) return;
+                heading.textContent = '업무 수정';
+                saveBtn.textContent = '저장';
+                document.getElementById('modal-title').value = task.title;
+                document.getElementById('modal-desc').value = task.desc || '';
+                catSelect.value = task.category || 'inbox';
+                setRangeDateValues('modal-date-start', 'modal-date-end', task.dateStart, task.dateEnd || '');
+                setMultiDateValues('modal-recurrence-dates', task.recurrenceDates || []);
+                document.getElementById('modal-recurrence').value = task.recurrence || 'none';
+                syncRecurrenceDatesRow('modal');
+                updateLunarHint('modal-lunar-hint', task.dateStart, task.dateEnd);
+            } else {
+                heading.textContent = '새 업무 추가';
+                saveBtn.textContent = '추가';
+                document.getElementById('modal-title').value = '';
+                document.getElementById('modal-desc').value = '';
+                setRangeDateValues('modal-date-start', 'modal-date-end', dateStr || '', '');
+                setMultiDateValues('modal-recurrence-dates', []);
+                document.getElementById('modal-recurrence').value = 'none';
+                syncRecurrenceDatesRow('modal');
+                updateLunarHint('modal-lunar-hint', dateStr || '', '');
+            }
+            syncLunarToggleUI();
+            dmOpenOverlay(document.getElementById('cal-task-modal'));
+            rangeDatePickers['modal-date-range-mount']?.renderGrid?.();
             document.getElementById('modal-title').focus();
         };
 
         window.closeTaskModal = function() {
-            document.getElementById('cal-task-modal').style.display = 'none';
+            editingModalTaskId = null;
+            dmCloseOverlay(document.getElementById('cal-task-modal'));
         };
 
         window.saveTaskFromModal = function() {
             const title = document.getElementById('modal-title').value.trim();
             if(!title) return alert('업무 이름을 입력해주세요.');
-            
-            addTask(
-                title,
-                document.getElementById('modal-category').value,
-                document.getElementById('modal-date-start').value,
-                document.getElementById('modal-date-end').value,
-                document.getElementById('modal-recurrence').value,
-                document.getElementById('modal-desc').value.trim()
-            );
+
+            const category = document.getElementById('modal-category').value;
+            const dateStart = document.getElementById('modal-date-start').value;
+            const dateEnd = document.getElementById('modal-date-end').value;
+            const recurrence = document.getElementById('modal-recurrence').value;
+            const recurrenceDates = parseRecurrenceDatesHidden('modal-recurrence-dates');
+            const desc = document.getElementById('modal-desc').value.trim();
+
+            if (editingModalTaskId) {
+                const task = tasks.find(t => t.id === editingModalTaskId);
+                if (task) {
+                    saveWithUndo();
+                    task.title = title;
+                    task.category = category;
+                    task.desc = desc;
+                    task.dateStart = dateStart;
+                    task.dateEnd = dateEnd;
+                    task.recurrence = recurrence;
+                    task.recurrenceDates = recurrence === 'dates' ? recurrenceDates : undefined;
+                    if (recurrence === 'dates' && recurrenceDates.length) {
+                        task.dateStart = recurrenceDates[0];
+                        task.dateEnd = recurrenceDates[recurrenceDates.length - 1];
+                    }
+                    saveData();
+                    renderCategories();
+                    renderApp();
+                }
+            } else {
+                addTask(title, category, dateStart, dateEnd, recurrence, desc, null, recurrenceDates);
+            }
             closeTaskModal();
+        };
+
+        window.saveInlineDate = function() {
+            applyInlineDateChange();
+            dmSetFloating(document.getElementById('inline-date-popover'), false);
+            editingInlineDateId = null;
         };
 
         window.toggleTask = function(id) {
             const task = tasks.find(t => t.id === id);
             if (task) {
+                saveWithUndo();
                 task.completed = !task.completed;
                 task.completedAt = task.completed ? Date.now() : null;
+                if (task.completed && task.hubPriority) task.hubPriority = false;
+                saveData();
+                renderApp();
+            }
+        };
+
+        window.toggleHubPriority = function(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task && !task.completed) {
+                saveWithUndo();
+                task.hubPriority = !task.hubPriority;
                 saveData();
                 renderApp();
             }
@@ -6410,6 +8155,7 @@
 
         window.deleteTask = function(id) {
             if (confirm('이 항목을 삭제하시겠습니까?')) {
+                saveWithUndo();
                 tasks = tasks.filter(t => t.id !== id);
                 saveData();
                 renderApp();
@@ -6417,9 +8163,27 @@
         };
 
         function setupEvents() {
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                    const el = e.target;
+                    const tag = el && el.tagName;
+                    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                    if (el && el.isContentEditable) return;
+                    e.preventDefault();
+                    performUndo();
+                }
+            });
+
             document.getElementById('theme-selector').addEventListener('change', (e) => setTheme(e.target.value));
 
             document.querySelector('aside').addEventListener('click', (e) => {
+                const hubCheck = e.target.closest('.hub-cat-check');
+                if (hubCheck?.dataset.catKey) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    toggleHubCategory(hubCheck.dataset.catKey);
+                    return;
+                }
                 const moreBtn = e.target.closest('.btn-cat-more');
                 if (moreBtn) {
                     e.stopPropagation();
@@ -6428,16 +8192,17 @@
                 }
                 const navItem = e.target.closest('.nav-item');
                 if (!navItem || !navItem.dataset.tab) return;
-                if (navItem.hasAttribute('draggable') && e.target.closest('.btn-cat-more')) return;
+                if (navItem.hasAttribute('draggable') && (e.target.closest('.btn-cat-more') || e.target.closest('.hub-cat-check'))) return;
 
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 navItem.classList.add('active');
                 if (navItem.dataset.tab !== 'today') {
                     todaySearchActive = false;
-                    document.getElementById('today-menu-popover').style.display = 'none';
+                    dmSetFloating(document.getElementById('today-menu-popover'), false);
                 } else {
                     resetTodayDateToCurrent();
                 }
+                resetTabFiltersForEnter(navItem.dataset.tab);
                 currentTab = navItem.dataset.tab;
                 resetTaskListSortToDate();
                 resetInputBar();
@@ -6463,14 +8228,15 @@
             todayMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const rect = todayMenuBtn.getBoundingClientRect();
-                todayMenuPop.style.display = todayMenuPop.style.display === 'flex' ? 'none' : 'flex';
+                const willOpen = !dmIsFloatingVisible(todayMenuPop);
                 todayMenuPop.style.top = (rect.bottom + 4) + 'px';
                 todayMenuPop.style.left = Math.min(rect.left, window.innerWidth - 160) + 'px';
+                dmSetFloating(todayMenuPop, willOpen);
             });
 
             todayMenuPop.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    todayMenuPop.style.display = 'none';
+                    dmSetFloating(todayMenuPop, false);
                     if (btn.dataset.action === 'history') {
                         openTodayHistory();
                     } else if (btn.dataset.action === 'search') {
@@ -6526,7 +8292,7 @@
                     btn.disabled = true;
                     try {
                         await window.electronAPI.syncNow();
-                        await updateGoogleSyncUI();
+                        await updateAccountUI();
                     } finally {
                         btn.disabled = false;
                     }
@@ -6536,6 +8302,7 @@
                     closeDesktopSettings();
                     await window.electronAPI.logout();
                 });
+                document.getElementById('aside-account-btn')?.addEventListener('click', logoutFromApp);
                 document.getElementById('desktop-settings-modal').addEventListener('click', (e) => {
                     if (e.target.id === 'desktop-settings-modal') closeDesktopSettings();
                 });
@@ -6575,12 +8342,6 @@
             document.getElementById('today-reset-modal').addEventListener('click', (e) => {
                 if (e.target.id === 'today-reset-modal') closeTodayResetSettings();
             });
-            document.getElementById('btn-app-settings').addEventListener('click', openAppSettings);
-            document.getElementById('app-settings-cancel').addEventListener('click', closeAppSettings);
-            document.getElementById('app-settings-save').addEventListener('click', saveAppSettings);
-            document.getElementById('app-settings-modal').addEventListener('click', (e) => {
-                if (e.target.id === 'app-settings-modal') closeAppSettings();
-            });
             document.getElementById('today-hist-prev').addEventListener('click', () => {
                 todayHistoryCalDate.setMonth(todayHistoryCalDate.getMonth() - 1);
                 renderTodayHistoryCalendar();
@@ -6597,28 +8358,60 @@
 
             dateTrigger.addEventListener('click', (e) => {
                 e.stopPropagation();
-                setCustomDateValue('pop-date-start', tempDateConfig.start);
-                setCustomDateValue('pop-date-end', tempDateConfig.end || '');
+                setRangeDateValues('pop-date-start', 'pop-date-end', tempDateConfig.start, tempDateConfig.end);
+                setMultiDateValues('pop-recurrence-dates', tempDateConfig.recurrenceDates || []);
                 document.getElementById('pop-recurrence').value = tempDateConfig.recurrence || 'none';
+                syncRecurrenceDatesRow('pop');
                 syncLunarToggleUI();
                 updateLunarHint('pop-lunar-hint', tempDateConfig.start, tempDateConfig.end);
 
-                const willOpen = datePopover.style.display === 'none' || !datePopover.style.display;
+                const willOpen = !dmIsFloatingVisible(datePopover);
                 if (willOpen) {
-                    datePopover.style.display = 'flex';
-                    // 시작일 달력까지 한 번에 펼침 (중간 클릭 생략)
-                    requestAnimationFrame(() => {
-                        customDatePickers['pop-date-start']?.openDropdown?.();
-                    });
+                    dmSetFloating(datePopover, true);
+                    rangeDatePickers['pop-date-range-mount']?.renderGrid?.();
                 } else {
-                    customDatePickers['pop-date-start']?.closeDropdown?.();
-                    customDatePickers['pop-date-end']?.closeDropdown?.();
-                    datePopover.style.display = 'none';
+                    dmSetFloating(datePopover, false);
                 }
             });
 
-            ['pop-date-start', 'pop-date-end', 'pop-recurrence'].forEach(id => {
+            function focusInputTitleFromDatePopover() {
+                dmSetFloating(datePopover, false);
+                document.getElementById('input-title')?.focus();
+            }
+
+            function focusInputDescFromDatePopover() {
+                dmSetFloating(datePopover, false);
+                document.getElementById('input-desc')?.focus();
+            }
+
+            function isInputDatePopoverOpen() {
+                return dmIsFloatingVisible(datePopover);
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (!isInputDatePopoverOpen()) return;
+                const inputArea = document.getElementById('task-input-area');
+                if (!inputArea || inputArea.style.display === 'none') return;
+
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    focusInputTitleFromDatePopover();
+                    return;
+                }
+                if (e.key === ' ' || (e.key === 'Tab' && !e.shiftKey)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    focusInputDescFromDatePopover();
+                }
+            }, true);
+
+            ['pop-date-start', 'pop-date-end', 'pop-recurrence', 'pop-recurrence-dates'].forEach(id => {
                 document.getElementById(id).addEventListener('change', syncInputDateFromPopover);
+            });
+            document.getElementById('pop-recurrence').addEventListener('change', () => {
+                syncRecurrenceDatesRow('pop');
+                syncInputDateFromPopover();
             });
 
             document.getElementById('pop-lunar-toggle').addEventListener('change', (e) => {
@@ -6630,13 +8423,18 @@
             if (annDateTrigger && annDatePopover) {
                 annDateTrigger.addEventListener('click', (e) => {
                     e.stopPropagation();
-            document.getElementById('ann-pop-date').value = annTempDate.start || '';
+                    setSingleDatePickerValue('ann-pop-date', 'ann-pop-date-mount', annTempDate.start || '');
                     document.getElementById('ann-pop-lunar-display').checked = showLunarDates;
                     document.getElementById('ann-pop-lunar-base').checked = annTempDate.isLunar;
-                    setCustomDateValue('ann-pop-date', annTempDate.start || '');
                     updateAnnLunarHint();
                     updateAnnInputRecurrenceForLunar();
-                    annDatePopover.style.display = annDatePopover.style.display === 'none' ? 'flex' : 'none';
+                    const willOpen = !dmIsFloatingVisible(annDatePopover);
+                    if (willOpen) {
+                        dmSetFloating(annDatePopover, true);
+                        rangeDatePickers['ann-pop-date-mount']?.renderGrid?.();
+                    } else {
+                        dmSetFloating(annDatePopover, false);
+                    }
                 });
                 document.getElementById('ann-pop-lunar-base').addEventListener('change', syncAnnDateFromPopover);
                 document.getElementById('ann-pop-lunar-display').addEventListener('change', (e) => {
@@ -6661,8 +8459,15 @@
                 if (e.target.id === 'ann-category-modal') closeAnnCategoryModal();
             });
 
-            ['inline-pop-date-start', 'inline-pop-date-end', 'inline-pop-recurrence'].forEach(id => {
+            ['inline-pop-date-start', 'inline-pop-date-end', 'inline-pop-recurrence', 'inline-pop-recurrence-dates'].forEach(id => {
                 document.getElementById(id).addEventListener('change', applyInlineDateChange);
+            });
+            document.getElementById('inline-pop-recurrence').addEventListener('change', () => {
+                syncRecurrenceDatesRow('inline-pop');
+                applyInlineDateChange();
+            });
+            document.getElementById('modal-recurrence').addEventListener('change', () => {
+                syncRecurrenceDatesRow('modal');
             });
 
             document.getElementById('inline-pop-lunar-toggle').addEventListener('change', (e) => {
@@ -6682,11 +8487,16 @@
 
             document.addEventListener('click', (e) => {
                 if (!datePopover.contains(e.target) && e.target !== dateTrigger && !e.target.closest('#btn-date-trigger')) {
-                    datePopover.style.display = 'none';
+                    dmSetFloating(datePopover, false);
                 }
                 if (annDatePopover && !annDatePopover.contains(e.target) && !e.target.closest('#ann-btn-date-trigger')) {
-                    annDatePopover.style.display = 'none';
+                    dmSetFloating(annDatePopover, false);
                 }
+                document.querySelectorAll('.ann-row-date-popover').forEach(pop => {
+                    if (!pop.contains(e.target) && !e.target.closest('.ann-row-date-trigger')) {
+                        dmSetFloating(pop, false);
+                    }
+                });
                 if (!e.target.closest('.custom-date-field') && !e.target.closest('.cdp-dropdown')) {
                     Object.values(customDatePickers).forEach(p => {
                         if (p.closeDropdown) p.closeDropdown();
@@ -6694,17 +8504,17 @@
                     openCustomDatePickerId = null;
                 }
                 if (!e.target.closest('#cat-popover') && !e.target.closest('.btn-cat-more')) {
-                    document.getElementById('cat-popover').style.display = 'none';
+                    dmSetFloating(document.getElementById('cat-popover'), false);
                 }
                 if (!e.target.closest('#inline-date-popover') && !e.target.closest('.editable-date')) {
                     const inlinePop = document.getElementById('inline-date-popover');
-                    if (inlinePop.style.display !== 'none') {
-                        inlinePop.style.display = 'none';
+                    if (dmIsFloatingVisible(inlinePop)) {
+                        dmSetFloating(inlinePop, false);
                         editingInlineDateId = null;
                     }
                 }
                 if (!e.target.closest('#today-menu-popover') && !e.target.closest('#today-menu-btn')) {
-                    document.getElementById('today-menu-popover').style.display = 'none';
+                    dmSetFloating(document.getElementById('today-menu-popover'), false);
                 }
                 if (!e.target.closest('#cal-ym-popover') && !e.target.closest('#cal-month-label')) {
                     closeCalYmPicker();
@@ -6733,12 +8543,20 @@
                 if (editingTaskId) {
                     const task = tasks.find(t => t.id === editingTaskId);
                     if (task) {
+                        saveWithUndo();
                         task.title = title;
                         task.category = isPlan ? TODAY_PLAN_ID : category;
                         task.planDate = isPlan ? (task.planDate || getPlanDateString()) : null;
                         task.dateStart = tempDateConfig.start || '';
                         task.dateEnd = tempDateConfig.end;
                         task.recurrence = tempDateConfig.recurrence;
+                        task.recurrenceDates = tempDateConfig.recurrence === 'dates'
+                            ? (tempDateConfig.recurrenceDates || [])
+                            : undefined;
+                        if (task.recurrence === 'dates' && task.recurrenceDates?.length) {
+                            task.dateStart = task.recurrenceDates[0];
+                            task.dateEnd = task.recurrenceDates[task.recurrenceDates.length - 1];
+                        }
                         task.desc = desc;
                     }
                     saveData();
@@ -6752,7 +8570,8 @@
                         tempDateConfig.end,
                         tempDateConfig.recurrence,
                         desc,
-                        planDate
+                        planDate,
+                        tempDateConfig.recurrenceDates
                     );
                 }
 
@@ -6763,6 +8582,7 @@
             // 피드백: 입력바 내 어디서든 엔터키를 누르면 저장되도록 수정
             document.getElementById('task-input-area').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
+                    if (isInputDatePopoverOpen()) return;
                     e.preventDefault();
                     document.getElementById('btn-add-task').click();
                 }
@@ -6827,20 +8647,32 @@
 
             document.getElementById('archive-filter-year')?.addEventListener('change', (e) => {
                 archiveFilterYear = e.target.value || 'all';
-                appStorage.setItem('notion_app_archive_filter_year', archiveFilterYear);
+                if (currentTab === 'archive') renderApp();
+            });
+            document.getElementById('archive-filter-month')?.addEventListener('change', (e) => {
+                archiveFilterMonth = e.target.value || 'all';
                 if (currentTab === 'archive') renderApp();
             });
             document.getElementById('archive-filter-category')?.addEventListener('change', (e) => {
                 archiveFilterCategory = e.target.value || 'all';
-                appStorage.setItem('notion_app_archive_filter_category', archiveFilterCategory);
                 if (currentTab === 'archive') renderApp();
             });
-            document.getElementById('archive-group-by')?.addEventListener('change', (e) => {
-                const v = e.target.value;
-                archiveGroupBy = ['year', 'category', 'none'].includes(v) ? v : 'year';
-                appStorage.setItem('notion_app_archive_group_by', archiveGroupBy);
-                if (currentTab === 'archive') renderApp();
+            document.getElementById('btn-archive-filter-reset')?.addEventListener('click', () => resetArchiveFilters(true));
+
+            document.getElementById('inbox-filter-year')?.addEventListener('change', (e) => {
+                inboxFilterYear = e.target.value || 'all';
+                if (currentTab === 'inbox') renderApp();
             });
+            document.getElementById('inbox-filter-month')?.addEventListener('change', (e) => {
+                inboxFilterMonth = e.target.value || 'all';
+                if (currentTab === 'inbox') renderApp();
+            });
+            document.getElementById('inbox-filter-category')?.addEventListener('change', (e) => {
+                inboxFilterCategory = e.target.value || 'all';
+                if (currentTab === 'inbox') renderApp();
+            });
+            document.getElementById('btn-inbox-filter-toggle')?.addEventListener('click', toggleInboxFilterPanel);
+            document.getElementById('btn-inbox-filter-reset')?.addEventListener('click', () => resetInboxFilters(true));
 
             document.getElementById('cal-lunar-toggle').addEventListener('change', (e) => {
                 setShowLunarDates(e.target.checked);
