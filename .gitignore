@@ -1,0 +1,16 @@
+node_modules/
+dist/
+out/
+release/
+*.log
+.DS_Store
+Thumbs.db
+.tools/
+.idea/
+.vscode/
+*.local
+google-oauth.config.json
+.env
+.env.*
+*.lnk
+Daymark.lnk

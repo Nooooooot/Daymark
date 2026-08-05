@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daymark · 로그인</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(145deg, #f7f9fc 0%, #e8f3ff 100%);
+            color: #2f3438;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 36px 32px;
+            box-shadow: 0 8px 32px rgba(35, 131, 226, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        h1 { font-size: 1.45rem; font-weight: 700; }
+        .sub {
+            color: #787774;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            margin: 12px 0 28px;
+        }
+        .btn-google {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, box-shadow 0.15s;
+        }
+        .btn-google:hover:not(:disabled) {
+            background: #f8f9fa;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .btn-google:disabled { opacity: 0.6; cursor: wait; }
+        .g-icon {
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="%23EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="%234285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.56 2.95-2.26 5.48-4.78 7.18l7.73 6.01C43.27 37.03 48 31.08 48 24.55z"/><path fill="%23FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78z"/><path fill="%2334A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6.01c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>') center/contain no-repeat;
+        }
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #787774;
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember input { accent-color: #2383e2; cursor: pointer; }
+        .status {
+            margin-top: 16px;
+            font-size: 0.82rem;
+            color: #787774;
+            min-height: 1.2em;
+            text-align: center;
+        }
+        .status.error { color: #e06c75; }
+        .status.success { color: #3b7a57; }
+        .hint {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.78rem;
+            color: #9a9a97;
+            line-height: 1.5;
+        }
+        .config-error {
+            background: #fde8e8;
+            color: #c0392b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <img class="logo-icon" src="../assets/icon.png" alt="Daymark">
+            <h1>Daymark</h1>
+        </div>
+        <p class="sub">Google 계정으로 로그인하면<br>할 일·기념일이 Google Drive에 동기화됩니다.</p>
+
+        <div id="config-error" class="config-error"></div>
+
+        <button type="button" class="btn-google" id="btn-login">
+            <span class="g-icon"></span>
+            Google로 로그인
+        </button>
+
+        <label class="remember">
+            <input type="checkbox" id="auto-login" checked>
+            로그인 정보 저장 및 자동 로그인
+        </label>
+
+        <div id="status" class="status"></div>
+
+        <p class="hint">
+            Google Cloud Console → OAuth 클라이언트 → <strong>승인된 리디렉션 URI</strong>에<br>
+            <code>http://127.0.0.1:42813/oauth/callback</code> 를 추가해야 합니다.<br><br>
+            데이터는 Google Drive 앱 데이터 폴더에 저장됩니다.<br>
+            다른 PC에서도 같은 Google 계정으로 로그인하면 동일한 데이터를 사용할 수 있습니다.
+        </p>
+    </div>
+
+    <script>
+        const btn = document.getElementById('btn-login');
+        const statusEl = document.getElementById('status');
+        const autoLoginEl = document.getElementById('auto-login');
+        const configErrorEl = document.getElementById('config-error');
+
+        function setStatus(text, type = '') {
+            statusEl.textContent = text;
+            statusEl.className = 'status' + (type ? ' ' + type : '');
+        }
+
+        window.loginAPI.getInitState().then((state) => {
+            if (state.configError) {
+                configErrorEl.style.display = 'block';
+                configErrorEl.textContent = state.configError + ' google-oauth.config.example.json 파일을 참고해 설정하세요.';
+                btn.disabled = true;
+            }
+            if (state.autoLogin !== undefined) {
+                autoLoginEl.checked = state.autoLogin !== false;
+            }
+        });
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            setStatus('브라우저에서 Google 로그인을 완료해 주세요...');
+            try {
+                const result = await window.loginAPI.startLogin({
+                    autoLogin: autoLoginEl.checked
+                });
+                if (result.ok) {
+                    setStatus('동기화 중...', 'success');
+                } else {
+                    setStatus(result.error || '로그인에 실패했습니다.', 'error');
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                setStatus(err.message || '로그인에 실패했습니다.', 'error');
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
