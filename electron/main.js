@@ -36,6 +36,10 @@ if (!gotSingleInstanceLock) {
   });
 }
 
+if (process.platform === 'win32') {
+  app.commandLine.appendSwitch('disable-features', 'OverlayScrollbars,WindowsOverlayScrollbars');
+}
+
 function getAssetPath(...parts) {
   return path.join(__dirname, '..', 'assets', ...parts);
 }
@@ -187,6 +191,14 @@ function createMainWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  mainWindow.on('focus', () => {
+    if (isAuthenticated) {
+      driveSync.pullAndMerge().catch((err) => {
+        console.error('Focus pull failed:', err.message);
+      });
+    }
+  });
 }
 
 function getAuthStatePayload() {
@@ -210,6 +222,7 @@ async function enterAuthenticatedApp({ showWindow = true } = {}) {
   if (showWindow) showMainWindow();
   refreshTrayMenu();
   mainWindow?.webContents.send('auth-state-changed', getAuthStatePayload());
+  driveSync.startBackgroundSync();
 }
 
 async function bootstrapAuth() {
@@ -221,7 +234,12 @@ async function bootstrapAuth() {
     await driveSync.pullAndMerge();
     driveSync.onStorageReload = () => {
       if (mainWindow && !mainWindow.webContents.isDestroyed()) {
-        mainWindow.webContents.reload();
+        mainWindow.webContents.send('sync-data-changed');
+      }
+    };
+    driveSync.onSyncStatusChanged = () => {
+      if (mainWindow && !mainWindow.webContents.isDestroyed()) {
+        mainWindow.webContents.send('auth-state-changed', getAuthStatePayload());
       }
     };
     await enterAuthenticatedApp({ showWindow: !process.argv.includes('--hidden') });
@@ -267,8 +285,6 @@ function buildTrayMenu() {
       click: async () => {
         try {
           await driveSync.syncNow();
-          mainWindow?.webContents.send('auth-state-changed', getAuthStatePayload());
-          mainWindow?.webContents.reload();
         } catch (err) {
           console.error('Manual sync failed:', err);
         }
@@ -371,6 +387,7 @@ function refreshTrayMenu() {
 async function handleLogout() {
   try {
     isAuthenticated = false;
+    driveSync.stopBackgroundSync();
     authManager.logout();
     if (mainWindow) {
       mainWindow.close();
@@ -394,7 +411,7 @@ function registerIpcHandlers() {
   });
   ipcMain.on('storage-remove', (event, key) => {
     storage.removeItem(key);
-    if (isAuthenticated) driveSync.scheduleUpload();
+    if (isAuthenticated) driveSync.scheduleUploadImmediate();
     event.returnValue = true;
   });
   ipcMain.on('storage-clear', (event) => {
@@ -407,6 +424,17 @@ function registerIpcHandlers() {
   });
   ipcMain.on('storage-key', (event, index) => {
     event.returnValue = storage.key(index);
+  });
+
+  ipcMain.on('sync-record-deletion', (event, collection, id) => {
+    storage.recordDeletion(collection, id);
+    if (isAuthenticated) driveSync.scheduleUploadImmediate();
+    event.returnValue = true;
+  });
+
+  ipcMain.on('sync-flush-upload', (event) => {
+    if (isAuthenticated) driveSync.scheduleUploadImmediate();
+    event.returnValue = true;
   });
 
   ipcMain.on('get-desktop-settings', (event) => {
@@ -433,7 +461,6 @@ function registerIpcHandlers() {
         forceConsent: true
       });
       await driveSync.pullAndMerge();
-      await driveSync.upload(true);
       await enterAuthenticatedApp();
       return { ok: true, email: authManager.getSession()?.email };
     } catch (err) {
@@ -457,7 +484,6 @@ function registerIpcHandlers() {
   ipcMain.handle('sync-now', async () => {
     if (!isAuthenticated) throw new Error('not_authenticated');
     await driveSync.syncNow();
-    mainWindow?.webContents.reload();
     return getAuthStatePayload();
   });
 
@@ -511,7 +537,7 @@ function registerIpcHandlers() {
     }
 
     if (mainWindow && !mainWindow.webContents.isDestroyed()) {
-      mainWindow.webContents.reload();
+      mainWindow.webContents.send('sync-data-changed');
     }
     return { ok: true, imported: importKeys.length };
   });
@@ -554,7 +580,13 @@ app.whenReady().then(async () => {
 
   driveSync.onStorageReload = () => {
     if (mainWindow && !mainWindow.webContents.isDestroyed()) {
-      mainWindow.webContents.reload();
+      mainWindow.webContents.send('sync-data-changed');
+    }
+  };
+
+  driveSync.onSyncStatusChanged = () => {
+    if (mainWindow && !mainWindow.webContents.isDestroyed()) {
+      mainWindow.webContents.send('auth-state-changed', getAuthStatePayload());
     }
   };
 
@@ -589,6 +621,7 @@ app.whenReady().then(async () => {
 app.on('before-quit', async () => {
   isQuitting = true;
   notificationScheduler?.stop();
+  driveSync?.stopBackgroundSync();
   if (isAuthenticated) {
     try {
       await driveSync.upload(true);

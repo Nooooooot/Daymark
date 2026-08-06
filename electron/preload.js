@@ -68,5 +68,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   focusMainWindow() {
     return ipcRenderer.invoke('focus-main-window');
+  },
+  recordSyncDeletion(collection, id) {
+    ipcRenderer.sendSync('sync-record-deletion', collection, id);
+  },
+  flushSyncUpload() {
+    ipcRenderer.sendSync('sync-flush-upload');
+  },
+  onSyncDataChanged(callback) {
+    ipcRenderer.on('sync-data-changed', () => callback());
   }
 });

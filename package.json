@@ -1,7 +1,7 @@
 {
   "name": "daymark",
   "productName": "Daymark",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Daymark · 일정과 업무 데스크톱 앱",
   "main": "electron/main.js",
   "author": "진우",
@@ -14,7 +14,8 @@
     "start": "electron .",
     "dev": "electron .",
     "build": "electron-builder --win",
-    "build:publish": "electron-builder --win --publish always"
+    "build:publish": "electron-builder --win --publish always",
+    "release": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/release.ps1"
   },
   "dependencies": {
     "electron-updater": "^6.8.9",

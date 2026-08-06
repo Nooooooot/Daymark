@@ -17,7 +17,11 @@ if (-not (Test-Path 'google-oauth.config.json')) {
     throw 'google-oauth.config.json is required in the project root before building.'
 }
 
-$version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+$pkgRaw = [System.IO.File]::ReadAllText((Join-Path $root 'package.json'), [System.Text.UTF8Encoding]::new($false))
+if ($pkgRaw -notmatch '"version"\s*:\s*"([^"]+)"') {
+    throw 'package.json에서 version을 찾을 수 없습니다.'
+}
+$version = $Matches[1]
 $tag = "v$version"
 $setup = Join-Path $root "dist\Daymark-Setup-$version.exe"
 $blockmap = "$setup.blockmap"

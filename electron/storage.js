@@ -71,13 +71,13 @@ class AppStorage {
 
   setItem(key, value) {
     this.cache[key] = value;
-    this.touchSyncMeta();
+    this.touchLocalEdit();
     this.persist();
   }
 
   removeItem(key) {
     delete this.cache[key];
-    this.touchSyncMeta();
+    this.touchLocalEdit();
     this.persist();
   }
 
@@ -85,7 +85,7 @@ class AppStorage {
     const meta = this.cache.sync_meta;
     this.cache = {};
     if (meta !== undefined) this.cache.sync_meta = meta;
-    this.touchSyncMeta();
+    this.touchLocalEdit();
     this.persist();
   }
 
@@ -117,6 +117,57 @@ class AppStorage {
     this.setSyncMeta({ updatedAt: new Date().toISOString() });
   }
 
+  touchLocalEdit() {
+    this.setSyncMeta({ localEditedAt: new Date().toISOString() });
+  }
+
+  clearLocalEdit() {
+    const meta = this.getSyncMeta();
+    delete meta.localEditedAt;
+    this.setSyncMeta(meta);
+  }
+
+  getEffectiveLocalUpdated() {
+    const meta = this.getSyncMeta();
+    const synced = meta.updatedAt ? Date.parse(meta.updatedAt) : 0;
+    const edited = meta.localEditedAt ? Date.parse(meta.localEditedAt) : 0;
+    return Math.max(synced, edited);
+  }
+
+  getDeletions() {
+    const meta = this.getSyncMeta();
+    return {
+      tasks: meta.deletedTasks || {},
+      anniversaries: meta.deletedAnniversaries || {},
+      ann_categories: meta.deletedAnnCategories || {},
+      categories: meta.deletedCategories || {}
+    };
+  }
+
+  setDeletions(deletions = {}) {
+    this.setSyncMeta({
+      deletedTasks: deletions.tasks || {},
+      deletedAnniversaries: deletions.anniversaries || {},
+      deletedAnnCategories: deletions.ann_categories || {},
+      deletedCategories: deletions.categories || {}
+    });
+  }
+
+  recordDeletion(collection, id) {
+    const mapKey = {
+      tasks: 'deletedTasks',
+      anniversaries: 'deletedAnniversaries',
+      ann_categories: 'deletedAnnCategories',
+      categories: 'deletedCategories'
+    }[collection];
+    if (!mapKey) return;
+    const meta = this.getSyncMeta();
+    const bucket = { ...(meta[mapKey] || {}) };
+    bucket[String(id)] = new Date().toISOString();
+    this.setSyncMeta({ [mapKey]: bucket });
+    this.touchLocalEdit();
+  }
+
   getDesktopSettings() {
     const raw = this.cache.desktop_settings;
     if (!raw) return { ...DEFAULT_DESKTOP_SETTINGS };
@@ -130,7 +181,7 @@ class AppStorage {
   setDesktopSettings(settings) {
     const merged = { ...this.getDesktopSettings(), ...settings };
     this.cache.desktop_settings = JSON.stringify(merged);
-    this.touchSyncMeta();
+    this.touchLocalEdit();
     this.persist();
     return merged;
   }
@@ -139,13 +190,22 @@ class AppStorage {
     return this.dataDir;
   }
 
-  applySyncPayload(data, updatedAt) {
+  applySyncPayload(data, updatedAt, options = {}) {
     if (!data || typeof data !== 'object') return;
     Object.entries(data).forEach(([key, value]) => {
       if (LOCAL_ONLY_KEYS.has(key)) return;
       this.cache[key] = value;
     });
-    this.setSyncMeta({ updatedAt: updatedAt || new Date().toISOString() });
+    const metaPatch = {};
+    if (updatedAt) metaPatch.updatedAt = updatedAt;
+    if (options.deletions) {
+      metaPatch.deletedTasks = options.deletions.tasks || {};
+      metaPatch.deletedAnniversaries = options.deletions.anniversaries || {};
+      metaPatch.deletedAnnCategories = options.deletions.ann_categories || {};
+      metaPatch.deletedCategories = options.deletions.categories || {};
+    }
+    this.setSyncMeta(metaPatch);
+    if (options.clearLocalEdit) this.clearLocalEdit();
     this.persist({ notify: false });
   }
 
@@ -153,7 +213,7 @@ class AppStorage {
     Object.entries(exportObj).forEach(([key, value]) => {
       this.cache[key] = typeof value === 'string' ? value : JSON.stringify(value);
     });
-    this.touchSyncMeta();
+    this.touchLocalEdit();
     this.persist();
   }
 }
