@@ -12,9 +12,7 @@ const SCALAR_KEYS = [
   'notion_app_plan_reset_hour',
   'notion_app_distant_schedule_days',
   'notion_app_completed_hold_days',
-  'notion_app_plan_date',
-  'notion_app_hub_categories',
-  'desktop_settings'
+  'notion_app_hub_categories'
 ];
 
 function parseArray(raw) {
@@ -59,7 +57,7 @@ function mergeOrderedRecords(localArr, remoteArr, deletions, getKey, preferLocal
     const key = getKey(item);
     if (!key || deletionTime(deletions, key)) continue;
     const existing = byKey.get(key);
-    if (!existing || itemVersion(item) >= itemVersion(existing)) {
+    if (!existing || itemVersion(item) > itemVersion(existing)) {
       byKey.set(key, item);
     }
   }
@@ -68,7 +66,10 @@ function mergeOrderedRecords(localArr, remoteArr, deletions, getKey, preferLocal
     const key = getKey(item);
     if (!key || deletionTime(deletions, key)) continue;
     const existing = byKey.get(key);
-    if (!existing || itemVersion(item) >= itemVersion(existing)) {
+    const localVersion = itemVersion(item);
+    const existingVersion = existing ? itemVersion(existing) : -1;
+    if (!existing || localVersion > existingVersion
+      || (preferLocal && localVersion === existingVersion)) {
       byKey.set(key, item);
     }
   }
@@ -146,6 +147,10 @@ function normalizeData(data = {}) {
   return normalized;
 }
 
+function deletionsEqual(a = {}, b = {}) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 function dataEquals(a = {}, b = {}) {
   const left = normalizeData(a);
   const right = normalizeData(b);
@@ -154,6 +159,12 @@ function dataEquals(a = {}, b = {}) {
     if (left[key] !== right[key]) return false;
   }
   return true;
+}
+
+function payloadEquals(payload, remote) {
+  if (!remote) return false;
+  return dataEquals(payload?.data || {}, remote?.data || {})
+    && deletionsEqual(payload?.deletions || {}, remote?.deletions || {});
 }
 
 function mergeSyncPayloads({
@@ -212,6 +223,8 @@ function mergeSyncPayloads({
 module.exports = {
   mergeSyncPayloads,
   dataEquals,
+  payloadEquals,
+  deletionsEqual,
   parseArray,
   mergeDeletions
 };

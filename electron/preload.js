@@ -6,15 +6,12 @@ const storageBackend = {
   },
   setItem(key, value) {
     ipcRenderer.sendSync('storage-set', key, value);
-    ipcRenderer.send('data-changed');
   },
   removeItem(key) {
     ipcRenderer.sendSync('storage-remove', key);
-    ipcRenderer.send('data-changed');
   },
   clear() {
     ipcRenderer.sendSync('storage-clear');
-    ipcRenderer.send('data-changed');
   },
   get length() {
     return ipcRenderer.sendSync('storage-length');
@@ -53,6 +50,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   syncNow() {
     return ipcRenderer.invoke('sync-now');
+  },
+  getRemoteSyncDebug() {
+    return ipcRenderer.invoke('sync-get-remote-debug');
   },
   onAuthStateChanged(callback) {
     ipcRenderer.on('auth-state-changed', (_event, state) => callback(state));

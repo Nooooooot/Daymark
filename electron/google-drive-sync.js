@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const { mergeSyncPayloads, dataEquals } = require('./sync-merge');
+const { mergeSyncPayloads, dataEquals, payloadEquals } = require('./sync-merge');
 
 const DRIVE_FILE_NAME = 'task-app-sync.json';
 const MIME_TYPE = 'application/json';
@@ -14,10 +14,15 @@ const SYNC_DATA_KEYS = [
   'notion_app_plan_reset_hour',
   'notion_app_distant_schedule_days',
   'notion_app_completed_hold_days',
-  'notion_app_plan_date',
-  'notion_app_hub_categories',
-  'desktop_settings'
+  'notion_app_hub_categories'
 ];
+
+const EMPTY_REMOTE = {
+  version: 2,
+  updatedAt: new Date(0).toISOString(),
+  data: {},
+  deletions: {}
+};
 
 class GoogleDriveSync {
   constructor(authManager, storage) {
@@ -53,16 +58,47 @@ class GoogleDriveSync {
     return data;
   }
 
-  buildPayload() {
-    const data = this.exportLocalData();
+  buildPayloadFromData(data, deletions, updatedAt) {
     const meta = this.storage.getSyncMeta();
     return {
       version: 2,
-      updatedAt: new Date().toISOString(),
+      updatedAt: updatedAt || new Date().toISOString(),
       deviceId: meta.deviceId,
-      deletions: this.storage.getDeletions(),
+      deletions: deletions || this.storage.getDeletions(),
       data
     };
+  }
+
+  buildPayload() {
+    return this.buildPayloadFromData(this.exportLocalData());
+  }
+
+  mergeWithRemote(remote) {
+    const localMeta = this.storage.getSyncMeta();
+    const localData = this.exportLocalData();
+    return mergeSyncPayloads({
+      localData,
+      remoteData: remote?.data || {},
+      localDeletions: this.storage.getDeletions(),
+      remoteDeletions: remote?.deletions || {},
+      localEditedAt: localMeta.localEditedAt || null,
+      remoteUpdatedAt: remote?.updatedAt || null
+    });
+  }
+
+  applyMergedToLocal(merged, localData) {
+    const localChanged = !dataEquals(localData, merged.data);
+    const deletionsChanged = JSON.stringify(this.storage.getDeletions()) !== JSON.stringify(merged.deletions);
+
+    if (localChanged) {
+      this.storage.applySyncPayload(merged.data, null, { deletions: merged.deletions });
+      this.onStorageReload?.();
+    } else if (deletionsChanged) {
+      this.storage.setDeletions(merged.deletions);
+      this.onStorageReload?.();
+    }
+
+    return localChanged || deletionsChanged;
   }
 
   scheduleUpload(delayMs = 300) {
@@ -141,12 +177,12 @@ class GoogleDriveSync {
     try {
       return JSON.parse(res.data);
     } catch {
-      return { version: 2, updatedAt: new Date(0).toISOString(), data: {}, deletions: {} };
+      return { ...EMPTY_REMOTE };
     }
   }
 
   async pullAndMerge() {
-    if (this.pendingLocalUpload) return;
+    if (this.syncing) return;
     this.syncing = true;
     this.lastSyncError = null;
     try {
@@ -177,31 +213,24 @@ class GoogleDriveSync {
         return;
       }
 
-      const merged = mergeSyncPayloads({
-        localData,
-        remoteData: remote.data,
-        localDeletions: this.storage.getDeletions(),
-        remoteDeletions: remote.deletions || {},
-        localEditedAt: localMeta.localEditedAt || null,
-        remoteUpdatedAt: remote.updatedAt || null
-      });
+      const merged = this.mergeWithRemote(remote);
+      const applied = this.applyMergedToLocal(merged, localData);
+      const remoteDataChanged = !dataEquals(localData, remote?.data || {});
 
-      const localChanged = !dataEquals(localData, merged.data);
-      const remoteChanged = !dataEquals(remote.data, merged.data);
-      const deletionsChanged = JSON.stringify(this.storage.getDeletions()) !== JSON.stringify(merged.deletions);
-
-      if (localChanged) {
-        this.storage.applySyncPayload(merged.data, null, { deletions: merged.deletions });
-        this.onStorageReload?.();
-      } else if (deletionsChanged) {
-        this.storage.setDeletions(merged.deletions);
-      }
-
-      if (localMeta.localEditedAt) {
-        await this.upload(true);
-      } else {
+      if (!localMeta.localEditedAt) {
+        if (remoteDataChanged && !applied) {
+          this.storage.applySyncPayload(merged.data, remote.updatedAt, {
+            deletions: merged.deletions,
+            clearLocalEdit: true
+          });
+        }
         this.storage.setSyncMeta({ updatedAt: remote.updatedAt || localMeta.updatedAt });
         this.storage.clearLocalEdit();
+        if (remoteDataChanged) {
+          this.onStorageReload?.();
+        }
+      } else {
+        await this.upload(true);
       }
 
       this.lastSyncAt = new Date().toISOString();
@@ -214,12 +243,42 @@ class GoogleDriveSync {
 
   async upload(force = false) {
     if (this.syncing && !force) return;
+    const localMeta = this.storage.getSyncMeta();
+    if (!force && !localMeta.localEditedAt && !this.pendingLocalUpload) return;
+
     this.syncing = true;
     this.lastSyncError = null;
     try {
       const drive = this.authManager.getDriveClient();
       const fileId = await this.findOrCreateFile(drive);
-      const payload = this.buildPayload();
+      const localData = this.exportLocalData();
+
+      let remote = { ...EMPTY_REMOTE };
+      try {
+        remote = await this.downloadRemote(drive);
+      } catch {
+        // remote 없으면 로컬만 업로드
+      }
+
+      const remoteHasData = remote?.data && Object.keys(remote.data).length > 0;
+      let payload;
+
+      if (remoteHasData) {
+        const merged = this.mergeWithRemote(remote);
+        this.applyMergedToLocal(merged, localData);
+        payload = this.buildPayloadFromData(merged.data, merged.deletions, merged.updatedAt);
+      } else {
+        payload = this.buildPayload();
+      }
+
+      if (remoteHasData && payloadEquals(payload, remote)) {
+        this.storage.setSyncMeta({ updatedAt: remote.updatedAt || payload.updatedAt });
+        this.storage.clearLocalEdit();
+        this.lastSyncAt = new Date().toISOString();
+        this.pendingLocalUpload = false;
+        return remote.updatedAt;
+      }
+
       this.storage.setSyncMeta({ updatedAt: payload.updatedAt });
       this.storage.clearLocalEdit();
 
@@ -245,17 +304,121 @@ class GoogleDriveSync {
       throw err;
     } finally {
       this.syncing = false;
+      this.pendingLocalUpload = false;
       this.onSyncStatusChanged?.();
     }
   }
 
   async syncNow() {
     clearTimeout(this.syncTimer);
-    if (this.pendingLocalUpload) {
+    if (this.pendingLocalUpload || this.storage.getSyncMeta().localEditedAt) {
       await this.upload(true);
     }
     await this.pullAndMerge();
     return this.getStatus();
+  }
+
+  parseJsonArray(raw) {
+    if (!raw) return [];
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  countDeletionEntries(deletions = {}) {
+    const buckets = ['tasks', 'anniversaries', 'categories', 'ann_categories'];
+    return buckets.reduce((sum, key) => {
+      const bucket = deletions[key];
+      return sum + (bucket && typeof bucket === 'object' ? Object.keys(bucket).length : 0);
+    }, 0);
+  }
+
+  /** Drive appDataFolder 원본 JSON 요약 — merge/upload 없이 읽기만 */
+  async getRemoteDebugSnapshot() {
+    const drive = this.authManager.getDriveClient();
+    const listRes = await drive.files.list({
+      spaces: 'appDataFolder',
+      fields: 'files(id, name, modifiedTime, size)',
+      q: `name='${DRIVE_FILE_NAME}' and trashed=false`,
+      pageSize: 1
+    });
+
+    const file = listRes.data.files?.[0];
+    const localMeta = this.storage.getSyncMeta();
+    const fetchedAt = new Date().toISOString();
+
+    if (!file) {
+      return {
+        ok: true,
+        exists: false,
+        fetchedAt,
+        localDeviceId: localMeta.deviceId || null,
+        fileName: DRIVE_FILE_NAME
+      };
+    }
+
+    const res = await drive.files.get(
+      { fileId: file.id, alt: 'media' },
+      { responseType: 'text' }
+    );
+
+    let payload = { ...EMPTY_REMOTE };
+    try {
+      payload = JSON.parse(res.data);
+    } catch {
+      payload = { ...EMPTY_REMOTE };
+    }
+
+    const data = payload.data || {};
+    const tasks = this.parseJsonArray(data.notion_app_tasks);
+    const anniversaries = this.parseJsonArray(data.notion_app_anniversaries);
+    const categories = this.parseJsonArray(data.notion_app_categories);
+    const recentTasks = tasks
+      .slice()
+      .sort((a, b) => (b.modifiedAt || 0) - (a.modifiedAt || 0))
+      .slice(0, 5)
+      .map((task) => ({
+        id: task.id,
+        title: task.title || '(제목 없음)',
+        modifiedAt: task.modifiedAt || null
+      }));
+
+    const updatedAt = payload.updatedAt || null;
+    const deviceId = payload.deviceId || null;
+    const driveModifiedTime = file.modifiedTime || null;
+
+    return {
+      ok: true,
+      exists: true,
+      fetchedAt,
+      fileName: DRIVE_FILE_NAME,
+      fileId: file.id,
+      fileSize: file.size || null,
+      driveModifiedTime,
+      updatedAt,
+      deviceId,
+      localDeviceId: localMeta.deviceId || null,
+      uploadedByThisPc: !!(deviceId && localMeta.deviceId && deviceId === localMeta.deviceId),
+      version: payload.version ?? null,
+      counts: {
+        tasks: tasks.length,
+        anniversaries: anniversaries.length,
+        categories: categories.length,
+        deletions: this.countDeletionEntries(payload.deletions || {})
+      },
+      recentTasks,
+      fingerprint: [
+        driveModifiedTime,
+        updatedAt,
+        deviceId,
+        tasks.length,
+        anniversaries.length,
+        recentTasks.map((task) => `${task.id}:${task.modifiedAt || 0}`).join('|')
+      ].join('::')
+    };
   }
 }
 

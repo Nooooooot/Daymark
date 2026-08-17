@@ -933,6 +933,27 @@
             align-self: center;
         }
 
+        .task-input-bar .task-input-check-add {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+            width: 36px;
+            height: 24px;
+            padding-top: 0;
+            color: var(--text-light);
+            opacity: 0.62;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .task-input-check-add-plus {
+            font-size: 27px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
         .date-picker-wrapper {
             position: relative;
             width: 100%;
@@ -1651,6 +1672,13 @@
             overflow: hidden;
             background: var(--border-color);
         }
+        .cal-grid-viewport.has-cal-cell-expanded {
+            overflow: visible;
+            z-index: 5;
+        }
+        .cal-grid.has-cal-cell-expanded {
+            overflow: visible;
+        }
         .cal-week-row {
             grid-column: 1 / -1;
             display: grid;
@@ -1661,7 +1689,13 @@
             overflow: hidden;
             isolation: isolate;
         }
-        .cal-week-row.has-event-lanes .cal-cell-items {
+        .cal-week-row.has-expanded-cell {
+            overflow: visible;
+            z-index: 10;
+            isolation: auto;
+            align-items: start;
+        }
+        .cal-week-row.has-event-lanes .cal-cell-body {
             padding-top: var(--cal-lane-area, 0px);
         }
         .cal-week-span-overlay {
@@ -1677,7 +1711,6 @@
             box-sizing: border-box;
             --cal-event-inset-outer: 6px;
             --cal-event-inset-boundary: 4px;
-            /* 셀 border-right(1px) 보정 — 구분선이 양쪽 블록 사이 가운데 */
             --cal-event-inset-boundary-right: calc(var(--cal-event-inset-boundary) + 1px);
         }
         .cal-span-bar,
@@ -1800,23 +1833,96 @@
             z-index: 4;
             margin-bottom: 1px;
         }
-        .cal-cell-items {
+        .cal-cell-body {
             flex: 1;
             min-height: 0;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             gap: 3px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border-color) transparent;
         }
-        .cal-cell-items::-webkit-scrollbar {
-            width: 4px;
+        .cal-week-overflow-hints {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 24px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            pointer-events: none;
+            z-index: 4;
         }
-        .cal-cell-items::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+        .cal-col-overflow-hint {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+            color: var(--text-light);
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                color-mix(in srgb, var(--bg-sidebar) 55%, transparent) 45%,
+                color-mix(in srgb, var(--bg-sidebar) 92%, var(--text-light)) 100%
+            );
+            padding-bottom: 3px;
+            opacity: 0.92;
+        }
+        .cal-week-row.has-expanded-cell .cal-week-overflow-hints {
+            opacity: 0;
+        }
+        .cal-week-row.has-expanded-cell .cal-week-span-overlay {
+            z-index: 6;
+        }
+        .cal-week-row.has-expanded-cell .cal-cell:not(.is-expanded) {
+            height: var(--cal-row-base-height);
+            align-self: start;
+        }
+        .cal-cell.has-cell-overflow.is-expanded {
+            position: relative;
+            z-index: 5;
+            align-self: start;
+            height: var(--cal-expand-height);
+            min-height: var(--cal-expand-height);
+            overflow: hidden;
+            background: var(--bg-sidebar);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            transition: height 0.18s ease, box-shadow 0.18s ease;
+        }
+        .cal-cell.has-cell-overflow.is-expanded.is-today {
+            background: color-mix(in srgb, var(--primary) 8%, var(--bg-sidebar));
+            box-shadow: inset 0 0 0 1px var(--primary), 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        .cal-cell.has-cell-overflow.is-expanded.is-other-month {
+            background: color-mix(in srgb, var(--text-light) 6%, var(--bg-sidebar));
+        }
+        .cal-cell.has-cell-overflow.is-expanded:hover {
+            background: var(--bg-sidebar);
+        }
+        .cal-cell.has-cell-overflow.is-expanded.is-today:hover {
+            background: color-mix(in srgb, var(--primary) 8%, var(--bg-sidebar));
+        }
+        .cal-cell.has-cell-overflow.is-expanded .cal-cell-header {
+            position: relative;
+            z-index: 2;
+            background: transparent;
+        }
+        .cal-cell.has-cell-overflow.is-expanded .cal-cell-body {
+            overflow: visible;
+            flex: none;
+            background: transparent;
+        }
+        .cal-cell.has-cell-overflow.is-expanded .cal-cell-items {
+            position: relative;
+            z-index: 2;
+        }
+        .cal-cell-items {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
         .cal-cell:hover { background: color-mix(in srgb, var(--primary) 4%, var(--bg-sidebar)); }
         .cal-cell.is-holiday .cal-date-num, .cal-cell.is-sunday .cal-date-num { color: #e06c75; }
@@ -3115,6 +3221,97 @@
             color: #e03e3e;
         }
 
+        .sync-debug-modal .modal-content {
+            width: min(520px, calc(100vw - 32px));
+            max-height: min(82vh, 720px);
+            display: flex;
+            flex-direction: column;
+        }
+        .sync-debug-intro {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            line-height: 1.55;
+            margin: 0 0 14px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: var(--hover-bg);
+        }
+        .sync-debug-status {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+        .sync-debug-status.is-error {
+            color: #c62828;
+        }
+        .sync-debug-status.is-changed {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        .sync-debug-grid {
+            display: grid;
+            grid-template-columns: 118px 1fr;
+            gap: 8px 12px;
+            font-size: 0.84rem;
+            margin-bottom: 14px;
+        }
+        .sync-debug-grid dt {
+            margin: 0;
+            color: var(--text-light);
+        }
+        .sync-debug-grid dd {
+            margin: 0;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+        .sync-debug-grid dd.is-changed {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        .sync-debug-section-title {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin: 0 0 8px;
+        }
+        .sync-debug-task-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 180px;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .sync-debug-task-list li {
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sync-debug-task-list li:last-child {
+            border-bottom: none;
+        }
+        .sync-debug-task-meta {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.74rem;
+            color: var(--text-light);
+        }
+        .sync-debug-empty {
+            padding: 12px 10px;
+            font-size: 0.82rem;
+            color: var(--text-light);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+        }
+        .sync-debug-footer {
+            margin-top: auto;
+            padding-top: 14px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
         .list-section-divider {
             display: flex;
             align-items: center;
@@ -3172,12 +3369,6 @@
             font-family: inherit;
             min-width: 110px;
         }
-        .archive-count {
-            margin-left: auto;
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--text-light);
-        }
         .list-toolbar {
             margin-bottom: 12px;
         }
@@ -3228,17 +3419,13 @@
         .list-filter-panel.list-filter-panel-static {
             display: flex;
             margin-top: 0;
+            padding: 10px 12px;
         }
         .list-filter-panel-footer {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-left: auto;
-        }
-        .list-filter-count {
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--text-light);
         }
         #default-task-table.hub-mode .table-header.grid-layout,
         #default-task-table.hub-mode .table-row.grid-layout,
@@ -3484,6 +3671,10 @@
                     <span class="material-symbols-outlined">sync</span>
                     <span id="aside-popover-sync-label">지금 동기화</span>
                 </button>
+                <button type="button" class="aside-account-popover-btn" id="aside-popover-sync-debug">
+                    <span class="material-symbols-outlined">cloud</span>
+                    Drive 원본 보기
+                </button>
                 <label class="aside-account-popover-toggle">
                     <span class="aside-account-popover-toggle-text">
                         <span class="aside-account-popover-toggle-label">자동 로그인</span>
@@ -3556,7 +3747,9 @@
         </div>
 
         <div class="task-input-bar grid-layout" id="task-input-area">
-            <div></div>
+            <div class="col-check task-input-check-add" aria-hidden="true">
+                <span class="material-symbols-outlined task-input-check-add-plus">add</span>
+            </div>
             <input type="text" id="input-title" placeholder="새 업무 이름..." autocomplete="off">
             <select id="input-category">
                 <option value="inbox">관리함</option>
@@ -3675,7 +3868,6 @@
                             <span class="material-symbols-outlined">restart_alt</span>
                             초기화
                         </button>
-                        <span class="list-filter-count" id="inbox-count"></span>
                     </div>
                 </div>
             </div>
@@ -3712,7 +3904,6 @@
                             <span class="material-symbols-outlined">restart_alt</span>
                             초기화
                         </button>
-                        <span class="list-filter-count" id="archive-count"></span>
                     </div>
                 </div>
             </div>
@@ -4124,6 +4315,33 @@
             <div class="modal-actions">
                 <button type="button" class="btn-modal-cancel" id="desktop-settings-cancel">취소</button>
                 <button type="button" class="btn-modal-save" id="desktop-settings-save">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sync-debug-modal" class="modal-overlay sync-debug-modal">
+        <div class="modal-content">
+            <h3>Drive 원본 (실시간)</h3>
+            <p class="sync-debug-intro">
+                Google Drive에 올라간 <code>task-app-sync.json</code> 내용입니다.
+                폰에서 입력한 뒤 <strong>동기화 버튼 없이</strong> 이 화면만 보세요.
+                시간·개수·할 일 목록이 바뀌면 폰 업로드가 된 것입니다.
+            </p>
+            <div class="sync-debug-status" id="sync-debug-status">불러오는 중…</div>
+            <dl class="sync-debug-grid" id="sync-debug-grid">
+                <dt>Drive 수정</dt><dd id="sync-debug-drive-modified">-</dd>
+                <dt>updatedAt</dt><dd id="sync-debug-updated-at">-</dd>
+                <dt>업로드 기기</dt><dd id="sync-debug-device">-</dd>
+                <dt>할 일</dt><dd id="sync-debug-task-count">-</dd>
+                <dt>기념일</dt><dd id="sync-debug-ann-count">-</dd>
+                <dt>카테고리</dt><dd id="sync-debug-cat-count">-</dd>
+                <dt>삭제 기록</dt><dd id="sync-debug-del-count">-</dd>
+            </dl>
+            <div class="sync-debug-section-title">최근 수정 할 일 (Drive 기준)</div>
+            <ul class="sync-debug-task-list" id="sync-debug-task-list"></ul>
+            <div class="sync-debug-footer">
+                <button type="button" class="btn-modal-cancel" id="sync-debug-refresh">지금 새로고침</button>
+                <button type="button" class="btn-modal-save" id="sync-debug-close">닫기</button>
             </div>
         </div>
     </div>
@@ -4591,6 +4809,7 @@
             }
 
             function openPopover() {
+                dmLockPopoverOutsideClick();
                 const pop = ensurePopover();
                 setSingleDatePickerValue(hiddenId, pickerMountId, hidden.value || '');
                 const rect = trigger.getBoundingClientRect();
@@ -4609,6 +4828,7 @@
 
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                dmLockPopoverOutsideClick();
                 if (popover && dmIsFloatingVisible(popover)) closePopover();
                 else openPopover();
             });
@@ -4965,6 +5185,7 @@
                 }
                 updateAnnPickerLunarHint();
                 if (changed) {
+                    markAnnModified(ann);
                     saveData();
                     renderAnniversaryView();
                     if (currentTab === 'calendar') renderCalendar();
@@ -5166,6 +5387,7 @@
 
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                dmLockPopoverOutsideClick();
                 if (dropdown.style.display === 'block') closeDropdown();
                 else openDropdown();
             });
@@ -5474,7 +5696,6 @@
         function openCalYmPicker(anchorEl) {
             const pop = document.getElementById('cal-ym-popover');
             if (!pop || !anchorEl) return;
-            closeCalYmPicker();
             calYmPickYear = currentCalDate.getFullYear();
             calYmPickerOpen = true;
             renderCalYmPicker();
@@ -5527,8 +5748,9 @@
 
             document.getElementById('cal-month-label')?.addEventListener('click', (e) => {
                 e.stopPropagation();
+                dmLockPopoverOutsideClick();
                 const pop = document.getElementById('cal-ym-popover');
-                if (pop?.style.display === 'block') closeCalYmPicker();
+                if (dmIsFloatingVisible(pop)) closeCalYmPicker();
                 else openCalYmPicker(e.currentTarget);
             });
         }
@@ -5539,6 +5761,7 @@
         let lastRenderedTab = null;
         let dmSuppressContentFade = false;
         let pendingSyncDataReload = false;
+        let pendingSyncReloadTimer = null;
         let focusTaskInputAfterRender = false;
         /** 목록 정렬: date(시작일) | title(이름) | category(카테고리) | manual(드래그 순서) */
         let taskListSortKey = 'date';
@@ -5917,7 +6140,7 @@
             return category !== 'all' || year !== 'all' || month !== 'all';
         }
 
-        function populateYearMonthFilterSelects(baseList, yearSel, monthSel, countEl, year, month, filteredCount) {
+        function populateYearMonthFilterSelects(baseList, yearSel, monthSel, year, month) {
             if (!yearSel || !monthSel) return;
 
             const yearList = collectFilterYears(baseList);
@@ -5926,10 +6149,9 @@
             ).join('');
             yearSel.value = year;
             monthSel.value = month;
-            if (countEl) countEl.textContent = `${filteredCount}개`;
         }
 
-        function populateFilterSelects(baseList, yearSel, monthSel, catSel, countEl, year, month, category, filteredCount) {
+        function populateFilterSelects(baseList, yearSel, monthSel, catSel, year, month, category) {
             if (!yearSel || !monthSel || !catSel) return;
 
             const yearList = collectFilterYears(baseList);
@@ -5945,7 +6167,6 @@
                 `<option value="${escapeHtml(c)}">${escapeHtml(getTaskArchiveCategoryLabel(c))}</option>`
             ).join('');
             catSel.value = category;
-            if (countEl) countEl.textContent = `${filteredCount}개`;
         }
 
         function applyArchiveFilters(list) {
@@ -5969,7 +6190,7 @@
             bar.style.display = currentTab === 'archive' ? 'block' : 'none';
         }
 
-        function syncArchiveToolbar(allArchived, filteredCount) {
+        function syncArchiveToolbar(allArchived) {
             if (archiveFilterYear !== 'all') {
                 const yearList = collectFilterYears(allArchived);
                 if (!yearList.includes(archiveFilterYear)) archiveFilterYear = 'all';
@@ -5983,11 +6204,9 @@
                 document.getElementById('archive-filter-year'),
                 document.getElementById('archive-filter-month'),
                 document.getElementById('archive-filter-category'),
-                document.getElementById('archive-count'),
                 archiveFilterYear,
                 archiveFilterMonth,
-                archiveFilterCategory,
-                filteredCount
+                archiveFilterCategory
             );
             updateArchiveFilterBarUI();
         }
@@ -6053,7 +6272,7 @@
             }
         }
 
-        function syncInboxToolbar(hubBase, filteredCount) {
+        function syncInboxToolbar(hubBase) {
             if (inboxFilterYear !== 'all') {
                 const yearList = collectFilterYears(hubBase);
                 if (!yearList.includes(inboxFilterYear)) inboxFilterYear = 'all';
@@ -6067,11 +6286,9 @@
                 document.getElementById('inbox-filter-year'),
                 document.getElementById('inbox-filter-month'),
                 document.getElementById('inbox-filter-category'),
-                document.getElementById('inbox-count'),
                 inboxFilterYear,
                 inboxFilterMonth,
-                inboxFilterCategory,
-                filteredCount
+                inboxFilterCategory
             );
             updateInboxFilterBarUI();
         }
@@ -6250,6 +6467,8 @@
         function checkPlanDateReset() {
             const planDate = getPlanDateString();
             const stored = appStorage.getItem('notion_app_plan_date');
+            if (stored === planDate) return;
+
             if (stored && stored !== planDate) {
                 if (currentTab === 'today' && todaySelectedPlanDate === stored) {
                     todaySelectedPlanDate = planDate;
@@ -6289,11 +6508,35 @@
         }
 
         function dmIsFloatingVisible(el) {
-            return el && el.style.display !== 'none' && el.style.display !== '';
+            return !!(el && el.classList.contains('dm-open'));
+        }
+
+        /** 짧은 드롭다운 — 열 때 바깥 클릭으로 바로 닫히지 않게 잠금 */
+        let dmPopoverOutsideClickLock = false;
+
+        function dmLockPopoverOutsideClick() {
+            dmPopoverOutsideClickLock = true;
+            setTimeout(() => { dmPopoverOutsideClickLock = false; }, 0);
+        }
+
+        function dmIsPopoverOpen(el) {
+            return !!(el && el.classList.contains('dm-open'));
+        }
+
+        const dmFloatingCloseState = new WeakMap();
+
+        function dmCancelFloatingClose(el) {
+            const state = dmFloatingCloseState.get(el);
+            if (!state) return;
+            if (state.timeoutId != null) clearTimeout(state.timeoutId);
+            if (state.onEnd) el.removeEventListener('transitionend', state.onEnd);
+            dmFloatingCloseState.delete(el);
         }
 
         function dmSetFloating(el, open, displayMode = 'flex') {
             if (!el) return;
+            dmCancelFloatingClose(el);
+
             if (open) {
                 el.style.display = displayMode;
                 if (prefersReducedMotion()) {
@@ -6301,29 +6544,48 @@
                     return;
                 }
                 el.classList.remove('dm-open');
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => el.classList.add('dm-open'));
-                });
+                void el.offsetWidth;
+                requestAnimationFrame(() => el.classList.add('dm-open'));
                 return;
             }
+
             if (prefersReducedMotion() || !el.classList.contains('dm-open')) {
                 el.classList.remove('dm-open');
                 el.style.display = 'none';
                 return;
             }
+
             el.classList.remove('dm-open');
             const done = () => {
-                el.style.display = 'none';
+                dmFloatingCloseState.delete(el);
+                if (!el.classList.contains('dm-open')) el.style.display = 'none';
             };
             const onEnd = (e) => {
                 if (e.target !== el || e.propertyName !== 'opacity') return;
-                el.removeEventListener('transitionend', onEnd);
+                dmCancelFloatingClose(el);
                 done();
             };
+            const timeoutId = setTimeout(done, 380);
             el.addEventListener('transitionend', onEnd);
-            setTimeout(() => {
-                if (el.style.display !== 'none' && !el.classList.contains('dm-open')) done();
-            }, 320);
+            dmFloatingCloseState.set(el, { onEnd, timeoutId });
+        }
+
+        function dmToggleFloating(el, btn, displayMode = 'flex') {
+            if (!el) return false;
+            dmLockPopoverOutsideClick();
+            const willOpen = !dmIsFloatingVisible(el);
+            dmSetFloating(el, willOpen, displayMode);
+            if (btn) btn.classList.toggle('is-open', willOpen);
+            return willOpen;
+        }
+
+        /** @deprecated instant open/close — prefer dmSetFloating / dmToggleFloating */
+        function dmSetPopoverOpen(el, open, displayMode = 'flex') {
+            dmSetFloating(el, open, displayMode);
+        }
+
+        function dmTogglePopover(el, btn, displayMode = 'flex') {
+            return dmToggleFloating(el, btn, displayMode);
         }
 
         function dmOpenOverlay(el) {
@@ -6409,61 +6671,97 @@
             updateAccountUI();
             window.electronAPI.onAuthStateChanged(() => updateAccountUI());
             window.electronAPI.onSyncDataChanged?.(() => applySyncDataFromStorage());
+            document.addEventListener('focusout', () => {
+                requestAnimationFrame(() => flushPendingSyncReload());
+            }, true);
+            setInterval(flushPendingSyncReload, 1000);
+            setInterval(syncUiFromStorageIfDrifted, 3000);
         }
 
         function isSyncReloadBlocked() {
             const dmDialog = document.getElementById('dm-dialog-overlay');
-            if (dmDialog && dmDialog.style.display !== 'none') return true;
+            if (dmDialog && dmDialog.classList.contains('dm-open')) return true;
 
-            const blockingModals = [
-                'desktop-settings-modal',
-                'today-history-modal',
-                'cal-task-modal',
-                'app-settings-modal'
-            ];
+            const blockingModals = ['cal-task-modal', 'app-settings-modal'];
             for (const id of blockingModals) {
                 const el = document.getElementById(id);
                 if (el?.classList.contains('dm-open')) return true;
             }
 
             const active = document.activeElement;
-            if (active?.isContentEditable) return true;
-
-            const titleInput = document.getElementById('input-title');
-            if (active === titleInput && titleInput.value.trim()) return true;
-
-            const annTitleInput = document.getElementById('ann-input-title');
-            if (active === annTitleInput && annTitleInput.value.trim()) return true;
+            if (active?.closest?.('#anniversary-input-area, #anniversary-list-body')) return true;
 
             return false;
         }
 
-        function applyThemeFromStorage(themeName) {
-            currentTheme = themeName || 'blue';
-            document.body.setAttribute('data-theme', currentTheme);
-            syncSettingsThemeSelect();
+        function captureAnniversaryInputDraft() {
+            return {
+                title: document.getElementById('ann-input-title')?.value ?? '',
+                type: document.getElementById('ann-input-type')?.value ?? '',
+                recurrence: document.getElementById('ann-input-recurrence')?.value ?? 'yearly',
+                showDday: !!document.getElementById('ann-input-dday')?.checked,
+                ddayIncludeDay: !!document.getElementById('ann-input-dday-include')?.checked,
+                ddayMode: getAnnInputDdayMode(),
+                desc: document.getElementById('ann-input-desc')?.value ?? '',
+                annTempDate: { ...annTempDate }
+            };
         }
 
-        function syncSettingsThemeSelect() {
-            setSettingsSelectValue(document.getElementById('settings-theme'), currentTheme);
-        }
+        function restoreAnniversaryInputDraft(draft) {
+            if (!draft) return;
 
-        function previewTheme(themeName) {
-            currentTheme = themeName || 'blue';
-            document.body.setAttribute('data-theme', currentTheme);
-            syncSettingsThemeSelect();
-        }
+            const titleEl = document.getElementById('ann-input-title');
+            if (titleEl && draft.title) titleEl.value = draft.title;
 
-        function getSavedTheme() {
-            return appStorage.getItem('notion_app_theme') || 'blue';
+            const typeEl = document.getElementById('ann-input-type');
+            if (typeEl && draft.type && anniversaryCategories.some(c => c.id === draft.type)) {
+                typeEl.value = draft.type;
+            }
+
+            const recurrenceEl = document.getElementById('ann-input-recurrence');
+            if (recurrenceEl && draft.recurrence) recurrenceEl.value = draft.recurrence;
+
+            const ddayEl = document.getElementById('ann-input-dday');
+            if (ddayEl) ddayEl.checked = draft.showDday;
+
+            const includeEl = document.getElementById('ann-input-dday-include');
+            if (includeEl) includeEl.checked = draft.ddayIncludeDay;
+
+            setAnnDdayMode('input', draft.ddayMode || 'until');
+            syncAnnInputDdayFormat();
+
+            const descEl = document.getElementById('ann-input-desc');
+            if (descEl && draft.desc) {
+                descEl.value = draft.desc;
+                resetDescTextareaHeight('ann-input-desc');
+            }
+
+            if (draft.annTempDate) {
+                annTempDate = { ...draft.annTempDate };
+                setCustomDateValue('ann-pop-date', annTempDate.start || '');
+                const lunarBase = document.getElementById('ann-pop-lunar-base');
+                if (lunarBase) lunarBase.checked = !!annTempDate.isLunar;
+                updateAnnDateTriggerLabel();
+                updateAnnLunarHint();
+                updateAnnInputRecurrenceForLunar();
+            }
         }
 
         function applySyncDataFromStorage() {
             if (isSyncReloadBlocked()) {
                 pendingSyncDataReload = true;
+                schedulePendingSyncReloadRetry();
                 return;
             }
+
+            const preserveTitle = document.getElementById('input-title')?.value || '';
+            const preserveAnnDraft = captureAnniversaryInputDraft();
+
             pendingSyncDataReload = false;
+            if (pendingSyncReloadTimer) {
+                clearTimeout(pendingSyncReloadTimer);
+                pendingSyncReloadTimer = null;
+            }
 
             tasks = normalizeTasksFromStorage(JSON.parse(appStorage.getItem('notion_app_tasks')) || []);
             anniversaries = normalizeAnniversariesFromStorage(JSON.parse(appStorage.getItem('notion_app_anniversaries')) || []);
@@ -6488,6 +6786,62 @@
 
             dmSuppressContentFade = true;
             renderApp({ silentSync: true });
+
+            const titleEl = document.getElementById('input-title');
+            if (titleEl && preserveTitle) titleEl.value = preserveTitle;
+            restoreAnniversaryInputDraft(preserveAnnDraft);
+        }
+
+        function applyThemeFromStorage(themeName) {
+            currentTheme = themeName || 'blue';
+            document.body.setAttribute('data-theme', currentTheme);
+            syncSettingsThemeSelect();
+        }
+
+        function syncSettingsThemeSelect() {
+            setSettingsSelectValue(document.getElementById('settings-theme'), currentTheme);
+        }
+
+        function previewTheme(themeName) {
+            currentTheme = themeName || 'blue';
+            document.body.setAttribute('data-theme', currentTheme);
+            syncSettingsThemeSelect();
+        }
+
+        function getSavedTheme() {
+            return appStorage.getItem('notion_app_theme') || 'blue';
+        }
+
+        function storageTasksFingerprint(raw) {
+            try {
+                const list = typeof raw === 'string' ? JSON.parse(raw || '[]') : raw;
+                if (!Array.isArray(list)) return '';
+                return list.map((t) => `${t.id}:${t.modifiedAt || 0}:${t.completed ? 1 : 0}`).join('|');
+            } catch {
+                return '';
+            }
+        }
+
+        function syncUiFromStorageIfDrifted() {
+            if (!window.electronAPI?.isDesktop) return;
+            if (isSyncReloadBlocked()) {
+                pendingSyncDataReload = true;
+                return;
+            }
+            const storedRaw = appStorage.getItem('notion_app_tasks') || '[]';
+            const memoryFp = tasks.map((t) => `${t.id}:${t.modifiedAt || 0}:${t.completed ? 1 : 0}`).join('|');
+            if (storageTasksFingerprint(storedRaw) !== memoryFp) {
+                applySyncDataFromStorage();
+            }
+        }
+
+        function schedulePendingSyncReloadRetry() {
+            if (pendingSyncReloadTimer) return;
+            pendingSyncReloadTimer = setTimeout(() => {
+                pendingSyncReloadTimer = null;
+                flushPendingSyncReload();
+                if (pendingSyncDataReload) schedulePendingSyncReloadRetry();
+            }, 400);
         }
 
         function flushPendingSyncReload() {
@@ -6511,16 +6865,11 @@
 
         function toggleAsideAccountPopover(e) {
             e?.stopPropagation();
+            e?.preventDefault();
             const btn = document.getElementById('aside-account-btn');
             const pop = document.getElementById('aside-account-popover');
             if (!btn || !pop || btn.disabled) return;
-            const willOpen = !dmIsFloatingVisible(pop);
-            if (!willOpen) {
-                closeAsideAccountPopover();
-                return;
-            }
-            dmSetFloating(pop, true);
-            btn.classList.add('is-open');
+            dmToggleFloating(pop, btn);
         }
 
         function formatSyncTime(iso) {
@@ -6531,6 +6880,157 @@
             } catch {
                 return iso;
             }
+        }
+
+        let syncDebugPollTimer = null;
+        let syncDebugLastFingerprint = null;
+        let syncDebugChangedUntil = 0;
+
+        function formatSyncDebugTime(iso) {
+            if (!iso) return '-';
+            try {
+                return new Date(iso).toLocaleString('ko-KR', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } catch {
+                return iso;
+            }
+        }
+
+        function formatSyncDebugDevice(deviceId, localDeviceId) {
+            if (!deviceId) return '-';
+            const short = deviceId.length > 12 ? `${deviceId.slice(0, 8)}…` : deviceId;
+            if (localDeviceId && deviceId === localDeviceId) return `${short} (이 PC)`;
+            return `${short} (다른 기기)`;
+        }
+
+        function setSyncDebugField(id, text, changed) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.classList.toggle('is-changed', !!changed);
+        }
+
+        function renderSyncDebugSnapshot(snapshot, { changed = false } = {}) {
+            const statusEl = document.getElementById('sync-debug-status');
+            const taskListEl = document.getElementById('sync-debug-task-list');
+
+            if (!snapshot?.exists) {
+                if (statusEl) {
+                    statusEl.textContent = changed
+                        ? 'Drive에 동기화 파일이 아직 없습니다.'
+                        : '3초마다 자동 확인 중 · Drive에 동기화 파일 없음';
+                    statusEl.classList.toggle('is-error', false);
+                    statusEl.classList.toggle('is-changed', false);
+                }
+                setSyncDebugField('sync-debug-drive-modified', '-', false);
+                setSyncDebugField('sync-debug-updated-at', '-', false);
+                setSyncDebugField('sync-debug-device', '-', false);
+                setSyncDebugField('sync-debug-task-count', '0', changed);
+                setSyncDebugField('sync-debug-ann-count', '0', false);
+                setSyncDebugField('sync-debug-cat-count', '0', false);
+                setSyncDebugField('sync-debug-del-count', '0', false);
+                if (taskListEl) {
+                    taskListEl.innerHTML = '<li class="sync-debug-empty">아직 업로드된 데이터가 없습니다.</li>';
+                }
+                return;
+            }
+
+            if (statusEl) {
+                const now = Date.now();
+                const showChanged = changed || now < syncDebugChangedUntil;
+                statusEl.textContent = showChanged
+                    ? '변경 감지됨 · Drive 원본이 바뀌었습니다'
+                    : '3초마다 자동 확인 중 · 마지막 확인 ' + formatSyncDebugTime(snapshot.fetchedAt);
+                statusEl.classList.toggle('is-error', false);
+                statusEl.classList.toggle('is-changed', showChanged);
+            }
+
+            setSyncDebugField('sync-debug-drive-modified', formatSyncDebugTime(snapshot.driveModifiedTime), changed);
+            setSyncDebugField('sync-debug-updated-at', formatSyncDebugTime(snapshot.updatedAt), changed);
+            setSyncDebugField(
+                'sync-debug-device',
+                formatSyncDebugDevice(snapshot.deviceId, snapshot.localDeviceId),
+                changed
+            );
+            setSyncDebugField('sync-debug-task-count', String(snapshot.counts?.tasks ?? 0), changed);
+            setSyncDebugField('sync-debug-ann-count', String(snapshot.counts?.anniversaries ?? 0), changed);
+            setSyncDebugField('sync-debug-cat-count', String(snapshot.counts?.categories ?? 0), changed);
+            setSyncDebugField('sync-debug-del-count', String(snapshot.counts?.deletions ?? 0), changed);
+
+            if (taskListEl) {
+                const recentTasks = snapshot.recentTasks || [];
+                if (!recentTasks.length) {
+                    taskListEl.innerHTML = '<li class="sync-debug-empty">할 일이 없습니다.</li>';
+                } else {
+                    taskListEl.innerHTML = recentTasks.map((task) => {
+                        const modified = task.modifiedAt
+                            ? formatSyncDebugTime(new Date(task.modifiedAt).toISOString())
+                            : '-';
+                        return `<li>${escapeHtml(task.title)}<span class="sync-debug-task-meta">${modified}</span></li>`;
+                    }).join('');
+                }
+            }
+        }
+
+        function stopSyncDebugPolling() {
+            if (syncDebugPollTimer) {
+                clearInterval(syncDebugPollTimer);
+                syncDebugPollTimer = null;
+            }
+        }
+
+        async function refreshSyncDebugPanel({ manual = false } = {}) {
+            if (!window.electronAPI?.getRemoteSyncDebug) return;
+            const statusEl = document.getElementById('sync-debug-status');
+            if (manual && statusEl) {
+                statusEl.textContent = '불러오는 중…';
+                statusEl.classList.remove('is-error', 'is-changed');
+            }
+
+            const result = await window.electronAPI.getRemoteSyncDebug();
+            if (!result?.ok) {
+                if (statusEl) {
+                    statusEl.textContent = `불러오기 실패: ${result?.error || '알 수 없는 오류'}`;
+                    statusEl.classList.add('is-error');
+                    statusEl.classList.remove('is-changed');
+                }
+                return;
+            }
+
+            const snapshot = result.snapshot;
+            const changed = syncDebugLastFingerprint !== null
+                && snapshot.fingerprint !== syncDebugLastFingerprint;
+            if (changed) {
+                syncDebugChangedUntil = Date.now() + 4000;
+            }
+            syncDebugLastFingerprint = snapshot.fingerprint || null;
+            renderSyncDebugSnapshot(snapshot, { changed });
+        }
+
+        function openSyncDebugPanel() {
+            if (!window.electronAPI?.getRemoteSyncDebug) return;
+            closeAsideAccountPopover();
+            syncDebugLastFingerprint = null;
+            syncDebugChangedUntil = 0;
+            dmOpenOverlay(document.getElementById('sync-debug-modal'));
+            refreshSyncDebugPanel({ manual: true });
+            stopSyncDebugPolling();
+            syncDebugPollTimer = setInterval(() => {
+                refreshSyncDebugPanel();
+            }, 3000);
+        }
+
+        function closeSyncDebugPanel() {
+            stopSyncDebugPolling();
+            syncDebugLastFingerprint = null;
+            syncDebugChangedUntil = 0;
+            dmCloseOverlay(document.getElementById('sync-debug-modal'));
+            flushPendingSyncReload();
         }
 
         async function updateAccountUI() {
@@ -7088,10 +7588,19 @@
         }
 
         function initAnniversaryTypeSelects() {
-            const options = anniversaryCategories.map(t =>
+            const sel = document.getElementById('ann-input-type');
+            if (!sel) return;
+            const prev = sel.value;
+            sel.innerHTML = anniversaryCategories.map(t =>
                 `<option value="${t.id}">${t.label}</option>`
             ).join('');
-            document.getElementById('ann-input-type').innerHTML = options;
+            if (prev && anniversaryCategories.some(c => c.id === prev)) {
+                sel.value = prev;
+            } else if (anniversaryCategories.some(c => c.id === annListTabTypeId)) {
+                sel.value = annListTabTypeId;
+            } else {
+                sel.value = anniversaryCategories[0]?.id || 'birthday';
+            }
         }
 
         function resetAnniversaryInput(focusTitle = false) {
@@ -7408,7 +7917,12 @@
         window.deleteAnnCategory = async function(id) {
             if (id === 'birthday' || id === 'other') return;
             if (!(await dmConfirm('이 분류를 삭제하시겠습니까? 해당 분류의 기념일은 "기타"로 변경됩니다.'))) return;
-            anniversaries.forEach(a => { if (a.type === id) a.type = 'other'; });
+            anniversaries.forEach(a => {
+                if (a.type === id) {
+                    a.type = 'other';
+                    markAnnModified(a);
+                }
+            });
             recordSyncDeletion('ann_categories', id);
             anniversaryCategories = anniversaryCategories.filter(c => c.id !== id);
             saveData();
@@ -7535,7 +8049,10 @@
         function applyAnniversaryOrder(orderedIds) {
             orderedIds.forEach((id, index) => {
                 const ann = anniversaries.find(a => a.id === id);
-                if (ann) ann.sortOrder = index;
+                if (ann) {
+                    ann.sortOrder = index;
+                    markAnnModified(ann);
+                }
             });
         }
 
@@ -7702,7 +8219,8 @@
                 lunarMonth: 0,
                 lunarDay: 0,
                 lunarIntercalation: false,
-                sortOrder: anniversaries.reduce((max, a) => Math.max(max, a.sortOrder ?? 0), -1) + 1
+                sortOrder: anniversaries.reduce((max, a) => Math.max(max, a.sortOrder ?? 0), -1) + 1,
+                modifiedAt: Date.now()
             };
             if (lunarMeta && lunarMeta.isLunar) {
                 item.isLunar = true;
@@ -7760,6 +8278,7 @@
                 changed = true;
             }
             if (changed) {
+                markAnnModified(ann);
                 saveData();
                 renderAnniversaryView();
                 if (currentTab === 'calendar') renderCalendar();
@@ -7840,8 +8359,6 @@
             } else {
                 badgeSol.style.display = 'none';
             }
-
-            checkPlanDateReset();
         }
 
         function buildColorPaletteUI() {
@@ -8187,7 +8704,8 @@
                 ['desktop-settings-modal', () => closeDesktopSettings()],
                 ['app-settings-modal', () => closeAppSettings()],
                 ['today-history-modal', () => closeTodayHistory()],
-                ['ann-category-modal', () => closeAnnCategoryModal()]
+                ['ann-category-modal', () => closeAnnCategoryModal()],
+                ['sync-debug-modal', () => closeSyncDebugPanel()]
             ];
             for (const [id, closeFn] of modalClosers) {
                 const el = document.getElementById(id);
@@ -8264,7 +8782,7 @@
                 document.getElementById('default-task-table')?.classList.add('hub-mode');
                 const hubBase = tasks.filter(t => isVisibleInHub(t));
                 filtered = applyInboxFilters(hubBase);
-                syncInboxToolbar(hubBase, filtered.length);
+                syncInboxToolbar(hubBase);
                 groupRecentlyCompleted = true;
             }
             else if (currentTab === 'anniversary') {
@@ -8287,7 +8805,7 @@
                 inputArea.style.display = 'none';
                 const allArchived = tasks.filter(t => isInArchiveList(t));
                 filtered = applyArchiveFilters(allArchived);
-                syncArchiveToolbar(allArchived, filtered.length);
+                syncArchiveToolbar(allArchived);
             } 
             else if (currentTab === 'calendar') {
                 if (tabChanged) resetCalendarToCurrentMonth();
@@ -8318,14 +8836,6 @@
                     t.title.toLowerCase().includes(q) || 
                     (t.desc && t.desc.toLowerCase().includes(q))
                 );
-                if (currentTab === 'archive') {
-                    const countEl = document.getElementById('archive-count');
-                    if (countEl) countEl.textContent = `${filtered.length}개`;
-                }
-                if (currentTab === 'inbox') {
-                    const countEl = document.getElementById('inbox-count');
-                    if (countEl) countEl.textContent = `${filtered.length}개`;
-                }
             }
 
             renderTaskList(filtered, {
@@ -9420,6 +9930,23 @@
                 }
             });
 
+            const cells = [...weekRow.querySelectorAll('.cal-cell')];
+            for (let col = 0; col < 7; col++) {
+                let maxRow = -1;
+                items.forEach(item => {
+                    if (item.kind === 'bar') {
+                        if (col >= item.segment.startCol && col <= item.segment.endCol) {
+                            maxRow = Math.max(maxRow, item.row);
+                        }
+                    } else if (item.col === col) {
+                        maxRow = Math.max(maxRow, item.row);
+                    }
+                });
+                if (cells[col]) {
+                    cells[col].dataset.laneRows = String(maxRow >= 0 ? maxRow + 1 : 0);
+                }
+            }
+
             weekRow.appendChild(overlay);
         }
 
@@ -9456,9 +9983,12 @@
             html += '</div>';
             cell.innerHTML = html;
 
+            const bodyWrap = document.createElement('div');
+            bodyWrap.className = 'cal-cell-body';
             const itemsWrap = document.createElement('div');
             itemsWrap.className = 'cal-cell-items';
-            cell.appendChild(itemsWrap);
+            bodyWrap.appendChild(itemsWrap);
+            cell.appendChild(bodyWrap);
 
             const dayAnns = anniversaries.filter(a => {
                 if (!isAnniversaryOnDate(a, dateStr)) return false;
@@ -9536,6 +10066,202 @@
                 appendCalendarWeekLanes(weekRow, weekIsos, q);
                 grid.appendChild(weekRow);
             }
+            updateCalendarCellOverflow();
+            requestAnimationFrame(() => updateCalendarCellOverflow());
+        }
+
+        const CAL_CELL_LANE_ROW_PX = 20;
+
+        function getCalendarCellLaneHeightPx(cell) {
+            const laneRows = parseInt(cell.dataset.laneRows || '0', 10);
+            return Math.max(0, laneRows) * CAL_CELL_LANE_ROW_PX;
+        }
+
+        function measureCalendarCellContentHeight(cell) {
+            const header = cell.querySelector('.cal-cell-header');
+            const items = cell.querySelector('.cal-cell-items');
+            const styles = getComputedStyle(cell);
+            const padY = (parseFloat(styles.paddingTop) || 0) + (parseFloat(styles.paddingBottom) || 0);
+            const laneH = getCalendarCellLaneHeightPx(cell);
+            const itemsH = items?.scrollHeight || 0;
+            return (header?.offsetHeight || 0) + laneH + itemsH + padY;
+        }
+
+        function measureCalendarCellExpandHeight(cell) {
+            return measureCalendarCellContentHeight(cell);
+        }
+
+        function updateCalendarWeekOverflowHints(weekRow) {
+            weekRow.querySelectorAll('.cal-week-overflow-hints').forEach(el => el.remove());
+            const cells = [...weekRow.querySelectorAll('.cal-cell')];
+            const overflowCells = cells.filter(cell => cell.classList.contains('has-cell-overflow'));
+            if (!overflowCells.length) return;
+
+            const hints = document.createElement('div');
+            hints.className = 'cal-week-overflow-hints';
+            hints.setAttribute('aria-hidden', 'true');
+            cells.forEach(cell => {
+                const hint = document.createElement('div');
+                hint.className = 'cal-col-overflow-hint';
+                if (!cell.classList.contains('has-cell-overflow')) {
+                    hint.style.visibility = 'hidden';
+                } else {
+                    hint.textContent = '···';
+                }
+                hints.appendChild(hint);
+            });
+            weekRow.appendChild(hints);
+        }
+
+        function updateCalendarCellExpandMetrics(cell) {
+            const weekRow = cell.closest('.cal-week-row');
+            if (!weekRow) return;
+            if (!weekRow.dataset.calRowBaseHeight) {
+                weekRow.dataset.calRowBaseHeight = String(weekRow.offsetHeight);
+            }
+            const baseHeight = parseInt(weekRow.dataset.calRowBaseHeight, 10) || weekRow.offsetHeight;
+            const needed = measureCalendarCellExpandHeight(cell);
+            weekRow.style.setProperty('--cal-row-base-height', `${baseHeight}px`);
+            cell.style.setProperty('--cal-expand-height', `${needed}px`);
+            weekRow.style.minHeight = `${needed}px`;
+        }
+
+        function expandCalendarCell(cell) {
+            if (!cell?.classList.contains('has-cell-overflow')) return;
+            const weekRow = cell.closest('.cal-week-row');
+            if (!weekRow) return;
+            weekRow.querySelectorAll('.cal-cell.is-expanded').forEach(other => {
+                if (other !== cell) other.classList.remove('is-expanded');
+            });
+            updateCalendarCellExpandMetrics(cell);
+            cell.classList.add('is-expanded');
+            weekRow.classList.add('has-expanded-cell');
+            document.getElementById('calendar-viewport')?.classList.add('has-cal-cell-expanded');
+            document.getElementById('calendar-grid')?.classList.add('has-cal-cell-expanded');
+        }
+
+        function collapseCalendarWeekRowExpand(weekRow) {
+            if (!weekRow) return;
+            weekRow.classList.remove('has-expanded-cell');
+            weekRow.style.removeProperty('min-height');
+            weekRow.style.removeProperty('--cal-row-base-height');
+            delete weekRow.dataset.calRowBaseHeight;
+            weekRow.querySelectorAll('.cal-cell.is-expanded').forEach(cell => cell.classList.remove('is-expanded'));
+            if (!document.querySelector('.cal-cell.is-expanded')) {
+                document.getElementById('calendar-viewport')?.classList.remove('has-cal-cell-expanded');
+                document.getElementById('calendar-grid')?.classList.remove('has-cal-cell-expanded');
+            }
+        }
+
+        function updateCalendarCellOverflow() {
+            document.querySelectorAll('.cal-week-row').forEach(weekRow => {
+                if (!weekRow.classList.contains('has-expanded-cell')) {
+                    weekRow.style.removeProperty('min-height');
+                }
+                weekRow.querySelectorAll('.cal-week-overflow-hints').forEach(el => el.remove());
+            });
+            document.querySelectorAll('.cal-cell').forEach(cell => {
+                const weekRow = cell.closest('.cal-week-row');
+                const needed = measureCalendarCellContentHeight(cell);
+                const hasOverflow = needed > cell.clientHeight + 2;
+                cell.classList.toggle('has-cell-overflow', hasOverflow);
+                if (hasOverflow) {
+                    cell.style.setProperty('--cal-expand-height', `${needed}px`);
+                    if (cell.classList.contains('is-expanded')) {
+                        updateCalendarCellExpandMetrics(cell);
+                    }
+                } else {
+                    cell.classList.remove('is-expanded');
+                    cell.style.removeProperty('--cal-expand-height');
+                }
+            });
+            document.querySelectorAll('.cal-week-row').forEach(updateCalendarWeekOverflowHints);
+        }
+
+        let calExpandCollapseTimer = null;
+
+        function getCalCellColumnIndex(cell) {
+            const weekRow = cell?.closest('.cal-week-row');
+            if (!weekRow) return -1;
+            return [...weekRow.querySelectorAll('.cal-cell')].indexOf(cell);
+        }
+
+        function isEventInCalColumn(eventEl, col) {
+            if (!eventEl || col < 0) return false;
+            const style = getComputedStyle(eventEl);
+            const colStart = parseInt(style.gridColumnStart, 10);
+            const colEnd = parseInt(style.gridColumnEnd, 10);
+            if (!Number.isFinite(colStart) || !Number.isFinite(colEnd)) return false;
+            const startIdx = colStart - 1;
+            const endIdx = colEnd - 1;
+            return col >= startIdx && col < endIdx;
+        }
+
+        function isPointerInCalExpandZone(clientX, clientY, cell) {
+            if (!cell?.classList.contains('is-expanded')) return false;
+            const rect = cell.getBoundingClientRect();
+            if (clientX >= rect.left && clientX <= rect.right &&
+                clientY >= rect.top && clientY <= rect.bottom) {
+                return true;
+            }
+            const weekRow = cell.closest('.cal-week-row');
+            const col = getCalCellColumnIndex(cell);
+            if (col < 0 || !weekRow) return false;
+            const hit = document.elementFromPoint(clientX, clientY);
+            if (!hit || !weekRow.contains(hit)) return false;
+            const eventEl = hit.closest('.cal-span-bar, .cal-lane-chip-wrap, .cal-lane-chip');
+            if (!eventEl?.closest('.cal-week-span-overlay')) return false;
+            const wrap = eventEl.closest('.cal-lane-chip-wrap') || eventEl.closest('.cal-span-bar') || eventEl;
+            return isEventInCalColumn(wrap, col);
+        }
+
+        function scheduleCalExpandCollapse(weekRow) {
+            clearTimeout(calExpandCollapseTimer);
+            calExpandCollapseTimer = setTimeout(() => {
+                if (weekRow?.querySelector('.cal-cell.is-expanded')) {
+                    collapseCalendarWeekRowExpand(weekRow);
+                }
+            }, 140);
+        }
+
+        function cancelCalExpandCollapse() {
+            clearTimeout(calExpandCollapseTimer);
+        }
+
+        function setupCalendarCellExpand() {
+            const grid = document.getElementById('calendar-grid');
+            if (!grid || grid.dataset.cellExpandBound === '1') return;
+            grid.dataset.cellExpandBound = '1';
+
+            grid.addEventListener('mouseover', (e) => {
+                const cell = e.target.closest?.('.cal-cell.has-cell-overflow');
+                if (!cell || !grid.contains(cell)) return;
+                if (cell.contains(e.relatedTarget)) return;
+                cancelCalExpandCollapse();
+                expandCalendarCell(cell);
+            });
+
+            grid.addEventListener('mousemove', (e) => {
+                const expanded = grid.querySelector('.cal-cell.is-expanded');
+                if (!expanded) return;
+                if (isPointerInCalExpandZone(e.clientX, e.clientY, expanded)) {
+                    cancelCalExpandCollapse();
+                    return;
+                }
+                scheduleCalExpandCollapse(expanded.closest('.cal-week-row'));
+            });
+
+            grid.addEventListener('mouseleave', () => {
+                cancelCalExpandCollapse();
+                document.querySelectorAll('.cal-week-row.has-expanded-cell').forEach(collapseCalendarWeekRowExpand);
+            });
+
+            window.addEventListener('resize', () => {
+                if (currentTab !== 'calendar') return;
+                cancelCalExpandCollapse();
+                document.querySelectorAll('.cal-week-row.has-expanded-cell').forEach(collapseCalendarWeekRowExpand);
+                updateCalendarCellOverflow();
+            });
         }
 
         let calMonthAnimating = false;
@@ -9832,11 +10558,6 @@
 
             // 마우스 휠 / 트랙패드로 월 이동 (아래로 = 다음 달, 위로 = 이전 달)
             grid.addEventListener('wheel', (e) => {
-                const itemsEl = e.target.closest('.cal-cell-items');
-                if (itemsEl && itemsEl.scrollHeight > itemsEl.clientHeight + 1) {
-                    e.stopPropagation();
-                    return;
-                }
                 const primary = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
                 if (primary === 0) return;
                 e.preventDefault();
@@ -10058,6 +10779,7 @@
         let editingInlineDateId = null;
         window.openInlineDatePopover = function(e, id) {
             e.stopPropagation();
+            dmLockPopoverOutsideClick();
             editingInlineDateId = id;
             const task = tasks.find(t => t.id === id);
             if (!task) return;
@@ -10105,6 +10827,7 @@
                 task.dateStart = recurrenceDates[0];
                 task.dateEnd = recurrenceDates[recurrenceDates.length - 1];
             }
+            markTaskModified(task);
             saveData();
             renderApp();
             updateLunarHint('inline-pop-lunar-hint', task.dateStart, task.dateEnd);
@@ -10197,6 +10920,7 @@
                         task.dateStart = recurrenceDates[0];
                         task.dateEnd = recurrenceDates[recurrenceDates.length - 1];
                     }
+                    markTaskModified(task);
                     saveData();
                     renderCategories();
                     renderApp();
@@ -10331,15 +11055,16 @@
 
             todayMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const rect = todayMenuBtn.getBoundingClientRect();
-                const willOpen = !dmIsFloatingVisible(todayMenuPop);
                 todayMenuPop.style.top = (rect.bottom + 4) + 'px';
                 todayMenuPop.style.left = Math.min(rect.left, window.innerWidth - 160) + 'px';
-                dmSetFloating(todayMenuPop, willOpen);
+                dmToggleFloating(todayMenuPop, null);
             });
 
             todayMenuPop.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     dmSetFloating(todayMenuPop, false);
                     if (btn.dataset.action === 'history') {
                         openTodayHistory();
@@ -10411,6 +11136,16 @@
                         const state = await window.electronAPI.getAuthState();
                         btn.disabled = !!state.sync?.syncing || !(state.isAuthenticated && state.email);
                     }
+                });
+                document.getElementById('aside-popover-sync-debug')?.addEventListener('click', () => {
+                    openSyncDebugPanel();
+                });
+                document.getElementById('sync-debug-close')?.addEventListener('click', closeSyncDebugPanel);
+                document.getElementById('sync-debug-refresh')?.addEventListener('click', () => {
+                    refreshSyncDebugPanel({ manual: true });
+                });
+                document.getElementById('sync-debug-modal')?.addEventListener('click', (e) => {
+                    if (e.target.id === 'sync-debug-modal') closeSyncDebugPanel();
                 });
                 document.getElementById('aside-popover-auto-login')?.addEventListener('change', (e) => {
                     if (!window.electronAPI?.setAutoLogin) return;
@@ -10486,6 +11221,7 @@
 
             dateTrigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                dmLockPopoverOutsideClick();
                 setRangeDateValues('pop-date-start', 'pop-date-end', tempDateConfig.start, tempDateConfig.end);
                 setMultiDateValues('pop-recurrence-dates', tempDateConfig.recurrenceDates || []);
                 document.getElementById('pop-recurrence').value = tempDateConfig.recurrence || 'none';
@@ -10493,12 +11229,9 @@
                 syncLunarToggleUI();
                 updateLunarHint('pop-lunar-hint', tempDateConfig.start, tempDateConfig.end);
 
-                const willOpen = !dmIsFloatingVisible(datePopover);
-                if (willOpen) {
-                    dmSetFloating(datePopover, true);
+                dmToggleFloating(datePopover, null);
+                if (dmIsFloatingVisible(datePopover)) {
                     rangeDatePickers['pop-date-range-mount']?.renderGrid?.();
-                } else {
-                    dmSetFloating(datePopover, false);
                 }
             });
 
@@ -10552,17 +11285,15 @@
             if (annDateTrigger && annDatePopover) {
                 annDateTrigger.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    dmLockPopoverOutsideClick();
                     setSingleDatePickerValue('ann-pop-date', 'ann-pop-date-mount', annTempDate.start || '');
                     document.getElementById('ann-pop-lunar-display').checked = showLunarDates;
                     document.getElementById('ann-pop-lunar-base').checked = annTempDate.isLunar;
                     updateAnnLunarHint();
                     updateAnnInputRecurrenceForLunar();
-                    const willOpen = !dmIsFloatingVisible(annDatePopover);
-                    if (willOpen) {
-                        dmSetFloating(annDatePopover, true);
+                    dmToggleFloating(annDatePopover, null);
+                    if (dmIsFloatingVisible(annDatePopover)) {
                         rangeDatePickers['ann-pop-date-mount']?.renderGrid?.();
-                    } else {
-                        dmSetFloating(annDatePopover, false);
                     }
                 });
                 document.getElementById('ann-pop-lunar-base').addEventListener('change', syncAnnDateFromPopover);
@@ -10615,14 +11346,18 @@
             });
 
             document.addEventListener('click', (e) => {
-                if (!datePopover.contains(e.target) && e.target !== dateTrigger && !e.target.closest('#btn-date-trigger')) {
+                if (dmPopoverOutsideClickLock) return;
+                if (dmIsFloatingVisible(datePopover) &&
+                    !datePopover.contains(e.target) && e.target !== dateTrigger && !e.target.closest('#btn-date-trigger')) {
                     dmSetFloating(datePopover, false);
                 }
-                if (annDatePopover && !annDatePopover.contains(e.target) && !e.target.closest('#ann-btn-date-trigger')) {
+                if (annDatePopover && dmIsFloatingVisible(annDatePopover) &&
+                    !annDatePopover.contains(e.target) && !e.target.closest('#ann-btn-date-trigger')) {
                     dmSetFloating(annDatePopover, false);
                 }
                 document.querySelectorAll('.ann-row-date-popover').forEach(pop => {
-                    if (!pop.contains(e.target) && !e.target.closest('.ann-row-date-trigger')) {
+                    if (dmIsFloatingVisible(pop) &&
+                        !pop.contains(e.target) && !e.target.closest('.ann-row-date-trigger')) {
                         dmSetFloating(pop, false);
                     }
                 });
@@ -10642,16 +11377,21 @@
                         editingInlineDateId = null;
                     }
                 }
-                if (!e.target.closest('#today-menu-popover') && !e.target.closest('#today-menu-btn')) {
-                    dmSetFloating(document.getElementById('today-menu-popover'), false);
+                const todayMenuPopEl = document.getElementById('today-menu-popover');
+                if (dmIsPopoverOpen(todayMenuPopEl) &&
+                    !e.target.closest('#today-menu-popover') && !e.target.closest('#today-menu-btn')) {
+                    dmSetFloating(todayMenuPopEl, false);
                 }
-                if (!e.target.closest('#aside-account-popover') && !e.target.closest('#aside-account-btn')) {
+                const asidePop = document.getElementById('aside-account-popover');
+                if (dmIsPopoverOpen(asidePop) &&
+                    !e.target.closest('#aside-account-popover') && !e.target.closest('#aside-account-btn')) {
                     closeAsideAccountPopover();
                 }
                 if (!e.target.closest('.settings-select-wrap')) {
                     closeSettingsSelectMenu();
                 }
-                if (!e.target.closest('#cal-ym-popover') && !e.target.closest('#cal-month-label')) {
+                if (calYmPickerOpen &&
+                    !e.target.closest('#cal-ym-popover') && !e.target.closest('#cal-month-label')) {
                     closeCalYmPicker();
                 }
             });
@@ -10692,6 +11432,7 @@
                             task.dateEnd = task.recurrenceDates[task.recurrenceDates.length - 1];
                         }
                         task.desc = desc;
+                        markTaskModified(task);
                     }
                     saveData();
                     renderCategories();
@@ -10858,6 +11599,7 @@
                 shiftCalendarMonth(1);
             });
             setupCalendarGestures();
+            setupCalendarCellExpand();
         }
 
         init();

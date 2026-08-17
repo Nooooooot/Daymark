@@ -405,18 +405,14 @@ function registerIpcHandlers() {
     event.returnValue = storage.getItem(key);
   });
   ipcMain.on('storage-set', (event, key, value) => {
-    storage.setItem(key, value);
-    if (isAuthenticated) driveSync.scheduleUpload();
-    event.returnValue = true;
+    event.returnValue = storage.setItem(key, value);
   });
   ipcMain.on('storage-remove', (event, key) => {
-    storage.removeItem(key);
-    if (isAuthenticated) driveSync.scheduleUploadImmediate();
-    event.returnValue = true;
+    event.returnValue = storage.removeItem(key);
   });
   ipcMain.on('storage-clear', (event) => {
     storage.clear();
-    if (isAuthenticated) driveSync.scheduleUpload();
+    if (isAuthenticated) driveSync.scheduleUploadImmediate();
     event.returnValue = true;
   });
   ipcMain.on('storage-length', (event) => {
@@ -487,6 +483,16 @@ function registerIpcHandlers() {
     return getAuthStatePayload();
   });
 
+  ipcMain.handle('sync-get-remote-debug', async () => {
+    if (!isAuthenticated) throw new Error('not_authenticated');
+    try {
+      const snapshot = await driveSync.getRemoteDebugSnapshot();
+      return { ok: true, snapshot };
+    } catch (err) {
+      return { ok: false, error: err.message || String(err) };
+    }
+  });
+
   ipcMain.handle('app-get-version', () => app.getVersion());
 
   ipcMain.handle('app-check-updates', async () => getUpdaterApi().checkForUpdates());
@@ -546,11 +552,6 @@ function registerIpcHandlers() {
     shell.openPath(storage.getDataDir());
   });
 
-  ipcMain.on('data-changed', () => {
-    refreshTrayMenu();
-    if (isAuthenticated) driveSync.scheduleUpload();
-  });
-
   ipcMain.on('test-notification', () => {
     notificationScheduler?.notifyNow('Daymark', '알림이 정상적으로 동작합니다.');
   });
@@ -591,6 +592,7 @@ app.whenReady().then(async () => {
   };
 
   storage.onDataChanged = () => {
+    refreshTrayMenu();
     if (isAuthenticated) driveSync.scheduleUpload();
   };
 

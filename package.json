@@ -1,7 +1,7 @@
 {
   "name": "daymark",
   "productName": "Daymark",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "Daymark · 일정과 업무 데스크톱 앱",
   "main": "electron/main.js",
   "author": "진우",
@@ -25,12 +25,14 @@
   },
   "devDependencies": {
     "electron": "^33.2.1",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "rcedit": "^5.0.2"
   },
   "build": {
     "appId": "com.daymark.desktop",
     "productName": "Daymark",
     "copyright": "Copyright © 진우",
+    "icon": "assets/icon.ico",
     "directories": {
       "output": "dist"
     },
@@ -47,6 +49,10 @@
       {
         "from": "google-oauth.config.json",
         "to": "google-oauth.config.json"
+      },
+      {
+        "from": "assets/icon.ico",
+        "to": "icon.ico"
       }
     ],
     "win": {
@@ -59,12 +65,15 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "artifactName": "Daymark-Setup-${version}.exe"
+      "artifactName": "Daymark-Setup-${version}.exe",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
     },
     "publish": {
       "provider": "github",
       "owner": "Nooooooot",
       "repo": "Daymark"
-    }
+    },
+    "afterPack": "scripts/after-pack.js"
   }
 }

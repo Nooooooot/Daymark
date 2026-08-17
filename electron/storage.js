@@ -70,15 +70,20 @@ class AppStorage {
   }
 
   setItem(key, value) {
-    this.cache[key] = value;
+    const next = value === undefined || value === null ? '' : String(value);
+    if (this.cache[key] === next) return false;
+    this.cache[key] = next;
     this.touchLocalEdit();
     this.persist();
+    return true;
   }
 
   removeItem(key) {
+    if (!(key in this.cache)) return false;
     delete this.cache[key];
     this.touchLocalEdit();
     this.persist();
+    return true;
   }
 
   clear() {

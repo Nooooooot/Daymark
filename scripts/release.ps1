@@ -1,16 +1,14 @@
-# Daymark GitHub Release (GitHub Actions builds the installer)
+# Daymark GitHub Release
 #
-# Before running:
-#   1. Bump "version" in package.json (e.g. 1.0.2)
-#   2. Save your changes
-#
-# Usage (PowerShell):
+# 로컬 빌드 + GitHub Releases 업로드 (평소에 쓰는 방법):
 #   cd C:\Users\User\Projects\Daymark
-#   .\scripts\release.ps1
+#   $env:GH_TOKEN = "ghp_..."
+#   $env:CSC_IDENTITY_AUTO_DISCOVERY = "false"
+#   & "$env:ProgramFiles\nodejs\npm.cmd" run build:publish
 #
-# Or from anywhere:
-#   & C:\Users\User\Projects\Daymark\scripts\release.ps1
-
+# GitHub Actions로 빌드 (커밋 + 태그 push):
+#   1. package.json version bump (e.g. 1.0.5)
+#   2. .\scripts\release.ps1
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
