@@ -1,7 +1,7 @@
 {
   "name": "daymark",
   "productName": "Daymark",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Daymark · 일정과 업무 데스크톱 앱",
   "main": "electron/main.js",
   "author": "진우",

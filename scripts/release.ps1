@@ -1,14 +1,20 @@
 # Daymark GitHub Release
 #
-# 로컬 빌드 + GitHub Releases 업로드 (평소에 쓰는 방법):
+# PowerShell 4줄 (package.json version 올린 뒤):
+#   cd C:\Users\User\Projects\Daymark
+#   git pull
+#   .\scripts\release.ps1
+#   Start-Process "https://github.com/Nooooooot/Daymark/actions"
+#
+# → main push + v1.0.6 태그 push 후 GitHub Actions가 exe 빌드·Release 업로드
+# → 2~5분 뒤 https://github.com/Nooooooot/Daymark/releases 에 Setup exe 확인
+#
+# 로컬에서 직접 빌드·업로드할 때만 (GH_TOKEN 필요):
 #   cd C:\Users\User\Projects\Daymark
 #   $env:GH_TOKEN = "ghp_..."
 #   $env:CSC_IDENTITY_AUTO_DISCOVERY = "false"
 #   & "$env:ProgramFiles\nodejs\npm.cmd" run build:publish
-#
-# GitHub Actions로 빌드 (커밋 + 태그 push):
-#   1. package.json version bump (e.g. 1.0.5)
-#   2. .\scripts\release.ps1
+
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
