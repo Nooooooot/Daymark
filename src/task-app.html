@@ -6690,6 +6690,7 @@
 
             const active = document.activeElement;
             if (active?.closest?.('#anniversary-input-area, #anniversary-list-body')) return true;
+            if (isInlineListEditingActive()) return true;
 
             return false;
         }
@@ -8427,6 +8428,21 @@
             return !!(e && (e.isComposing || e.keyCode === 229));
         }
 
+        function isIntentionalListFocus(active = document.activeElement) {
+            if (!active || active === document.body || active === document.documentElement) return false;
+            if (active.isContentEditable) return true;
+            const tag = active.tagName;
+            return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+        }
+
+        function isInlineListEditingActive() {
+            const active = document.activeElement;
+            if (!isIntentionalListFocus(active)) return false;
+            return !!active.closest?.(
+                '#task-list-body, #today-plan-body, #today-category-body, #today-search-results, #anniversary-list-body, .table-row, .ann-list-row'
+            );
+        }
+
         function releaseStuckFocus() {
             const active = document.activeElement;
             if (!active || active === document.body || active === document.documentElement) return;
@@ -8434,6 +8450,7 @@
                 try { active.blur(); } catch (_) { /* detached node */ }
                 return;
             }
+            if (isIntentionalListFocus(active)) return;
             if (active.closest?.('#task-list-body, #today-plan-body, #today-category-body, #anniversary-list-body, aside .nav-item')) {
                 active.blur();
             }
